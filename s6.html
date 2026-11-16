@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 6 · 证明题</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .verdict { font-family: var(--mono); font-size:14px; padding:12px 16px; border-radius:var(--radius);
+    background: var(--success-subtle); color: var(--success-fg); border:1px solid #aceebb; margin:14px 0; }
+  .formula { font-family: var(--mono); font-size: 15px; background: var(--canvas-subtle);
+    border:1px solid var(--border-default); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; line-height: 2; }
+  .formula b { color: var(--accent-fg); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 6</span>
+  <span class="spacer"></span>
+  <span class="badge badge-proof">10 分 · 压轴</span>
+</div></div>
+
+<div class="wrap">
+  <h1>证明题</h1>
+
+  <section class="kp">
+    <h2>1　证明线性无关</h2>
+    <div id="exam-a"></div>
+    <div class="stepper" id="pa"></div>
+  </section>
+
+  <section class="kp">
+    <h2>2　秩不等式</h2>
+    <div id="exam-b"></div>
+    <div class="stepper" id="pb"></div>
+  </section>
+
+  <section class="kp">
+    <h2>3　对称性</h2>
+    <div id="exam-c"></div>
+    <div class="stepper" id="pc"></div>
+  </section>
+
+  <section class="kp">
+    <h2>4　怎么判断该用哪一种</h2>
+    <table>
+      <thead><tr><th>题目里出现</th><th>用哪个</th><th>第一行动作</th></tr></thead>
+      <tbody>
+        <tr><td>「α 线性无关」+「β 是 α 的组合」</td><td>1</td><td>设 k₁β₁+⋯+kᵣβᵣ = 0</td></tr>
+        <tr><td>「AB = O」</td><td>2</td><td>把 B 按列拆开</td></tr>
+        <tr><td>「对称」+「证某某是对称的」</td><td>3</td><td>证它的转置等于自己</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s5.html">← 阶段 5</a>　　<a class="crumb" href="index.html">返回目录</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz;
+
+/* ===== 1 真题一 · 证明 1 ===== */
+document.getElementById('exam-a').innerHTML = V.exam({
+  src: '真题一 · 证明 1', score: '5 分',
+  body: '已知向量 α₁、α₂、α₃ 线性无关，令 β₁ = α₁+α₂+α₃，β₂ = α₂+α₃，β₃ = α₃，' +
+        '试证：β₁、β₂、β₃ 线性无关。'
+});
+
+V.stepper('#pa', [
+  { title:'第一步：设组合式为零',
+    html: '<div class="formula">设　k₁β₁ + k₂β₂ + k₃β₃ = <b>0</b></div>' },
+  { title:'第二步：把 β 换成 α',
+    html: '<div class="formula">k₁(α₁+α₂+α₃) + k₂(α₂+α₃) + k₃α₃ = 0</div>' },
+  { title:'第三步：按 α 合并同类项',
+    html: '<div class="formula">k₁α₁ + (k₁+k₂)α₂ + (k₁+k₂+k₃)α₃ = 0</div>' },
+  { title:'第四步：用 α 线性无关',
+    html: '<div class="formula">k₁ = 0　　k₁+k₂ = 0　　k₁+k₂+k₃ = 0</div>' +
+      '<p class="why">α₁、α₂、α₃ 线性无关 → 每个系数必须为 0。</p>' },
+  { title:'第五步：系数矩阵可逆',
+    html: V.matrix([[1,0,0],[1,1,0],[1,1,1]], {}) +
+      '<p class="why">下三角阵，对角元全为 1 → 行列式 = 1 ≠ 0 → 可逆。</p>' },
+  { title:'结论',
+    html: '<div class="verdict">可逆 → 只有零解 → k₁ = k₂ = k₃ = 0<br>→ β₁, β₂, β₃ 线性无关　∎</div>' }
+], {title:'证线性无关', subtitle:'真题一 · 证明 1'});
+
+/* ===== 2 真题三 · 证明 17 ===== */
+document.getElementById('exam-b').innerHTML = V.exam({
+  src: '真题三 · 证明 17', score: '10 分',
+  body: '设 A、B 均为 n 阶方阵，且 AB = 0。求证：r(A) + r(B) ≤ n。'
+});
+
+V.stepper('#pb', [
+  { title:'第一步：把 B 按列拆开',
+    html: '<div class="formula">记　B = [b₁, b₂, …, bₙ]</div>' +
+      '<p class="why">这一步是整道题的关键：把"矩阵相乘得零"换成"每一列都是解"。</p>' },
+  { title:'第二步：翻译成方程组',
+    html: '<div class="formula">AB = A[b₁ b₂ … bₙ] = [Ab₁ Ab₂ … Abₙ] = O</div>' +
+      '<div class="verdict">所以 Abⱼ = 0　对每个 j 都成立</div>' },
+  { title:'第三步：数维数',
+    html: '<div class="formula">Ax = 0 的解空间维数 = <b>n − r(A)</b></div>' },
+  { title:'第四步：得不等式',
+    html: '<div class="formula">r(B) = dim span{b₁,…,bₙ} ≤ n − r(A)</div>' },
+  { title:'结论',
+    html: '<div class="verdict">r(A) + r(B) ≤ n　∎</div>' }
+], {title:'秩不等式', subtitle:'真题三 · 证明 17'});
+
+/* ===== 3 真题一 · 证明 2 ===== */
+document.getElementById('exam-c').innerHTML = V.exam({
+  src: '真题一 · 证明 2', score: '5 分',
+  body: '已知 n 阶对称矩阵 A、B 满足 AB = BA，试证：AB² 是对称矩阵。'
+});
+
+V.stepper('#pc', [
+  { title:'要证什么',
+    html: '<div class="formula">证 (AB²)ᵀ = AB²</div>' +
+      '<p class="why">证矩阵对称，唯一办法是证它的转置等于自己。</p>' },
+  { title:'第一步：展开转置',
+    html: '<div class="formula">(AB²)ᵀ = (B²)ᵀ Aᵀ</div>' +
+      '<p class="why">用 (XY)ᵀ = YᵀXᵀ，顺序反转。</p>' },
+  { title:'第二步：再展开 B²',
+    html: '<div class="formula">= (B·B)ᵀ Aᵀ = (BᵀBᵀ)Aᵀ</div>' },
+  { title:'第三步：用对称条件',
+    html: '<div class="formula">Bᵀ = B，Aᵀ = A　→　= <b>B·B·A</b> = B²A</div>' },
+  { title:'第四步：用交换条件',
+    html: '<div class="formula">AB = BA　→　AB² = (AB)B = (BA)B = B(AB) = B²A</div>' +
+      '<p class="why">这一步必须写出来，是唯一的非平凡处。</p>' },
+  { title:'结论',
+    html: '<div class="verdict">(AB²)ᵀ = B²A = AB²　→　AB² 是对称矩阵　∎</div>' }
+], {title:'对称性', subtitle:'真题一 · 证明 2'});
+</script>
+</body>
+</html>

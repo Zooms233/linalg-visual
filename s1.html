@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 1 · 初等行变换 → 行最简形</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .op-arrow { font-family: var(--mono); font-size: 13px; color: var(--fg-muted); display:block; margin:10px 0; }
+  .op-arrow em { font-style: normal; color: var(--accent-fg); }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--fg-muted); margin-bottom:14px; }
+  .legend i { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; margin-right:5px; }
+  .lg-pivot { background: var(--success-subtle); box-shadow: inset 0 0 0 1px var(--success-fg); }
+  .lg-target{ background: var(--attention-subtle); box-shadow: inset 0 0 0 2px var(--attention-fg); }
+  .lg-hl   { background: var(--accent-subtle); }
+  .calls { counter-reset: c; }
+  .calls .item { position: relative; padding-left: 34px; margin-bottom: 14px; }
+  .calls .item::before {
+    counter-increment: c; content: counter(c);
+    position:absolute; left:0; top:1px;
+    width: 22px; height: 22px; line-height: 22px; text-align:center;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--accent-fg); background: var(--accent-subtle);
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 1</span>
+  <span class="spacer"></span>
+  <span class="badge badge-core">基本计算方法 · 必须练熟</span>
+</div></div>
+
+<div class="wrap">
+  <h1>初等行变换 → 行最简形</h1>
+
+  <section class="kp">
+    <h2>1　三种行变换</h2>
+
+    <div id="exam-ops"></div>
+
+    <div class="stepper" id="ops"></div>
+  </section>
+
+  <section class="kp">
+    <h2>2　完整消元：从原矩阵到行最简形</h2>
+
+    <div id="exam-demo"></div>
+
+    <div class="legend">
+      <span><i class="lg-pivot"></i>主元</span>
+      <span><i class="lg-hl"></i>正在操作的行</span>
+    </div>
+
+    <div class="stepper" id="demo"></div>
+
+    <h3 style="margin-top:28px">阶梯形与行最简形的区别</h3>
+    <table>
+      <thead><tr><th>形态</th><th>长相</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>行阶梯形</td>
+          <td>主元下方全是 0，主元不一定是 1</td>
+          <td>数非零行 → 求秩、判解</td>
+        </tr>
+        <tr>
+          <td>行最简形</td>
+          <td>主元为 1，且主元所在列的其余元素全为 0</td>
+          <td>读通解、读极大无关组的表示系数</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s2.html">下一阶段：用这套方法做五件事 →</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz, S = [];
+
+function stage(rows, opt, aside) {
+  return '<div class="stage"><div class="math">' + V.matrix(rows, opt) + '</div>' +
+         (aside ? '<div class="aside">' + aside + '</div>' : '') + '</div>';
+}
+function calcRow(p,s,k,c){ return V.rowCalc(p,s,k,{calcCols:c}); }
+function resRow(p,s,k,c){ return V.plain(calcRow(p,s,k,c)); }
+
+/* 真题一 · 选择 1：把 A 的第 3 行乘以 −1 得到 E，求 |A| */
+V.stepper('#ops', [
+  { title:'题目：把 A 的第 3 行乘以 −1 得到 E',
+    html: stage([[1,0,0],[0,1,0],[0,0,1]], {},
+      '<p class="why">左边这个就是 E。要求的是 |A|。</p>') },
+  { title:'反向做一次同样变换，得 A',
+    op: 'r₃ × (−1) → r₃',
+    anim: {type:'scale', row:2, k:-1, label:'×(−1)'},
+    html: stage([[1,0,0],[0,1,0],[0,0,-1]], {hlRow:[2]},
+      '<p class="why">E 的第 3 行乘 −1，就还原出 A。</p>') },
+  { title:'算 |A|',
+    html: '<div class="verdict">|A| = 1 · 1 · (−1) = −1</div>' },
+  { title:'用性质核对',
+    html: '<div class="verdict">某行乘 k → 行列式乘 k</div>' +
+      '<p class="why">A → E 是"第 3 行乘 −1"，故 |E| = (−1)|A|，即 1 = −|A|，|A| = −1 ✓</p>' },
+  { title:'答案',
+    html: '<div class="verdict">|A| = −1　→　选 B</div>' }
+], {title:'行变换对行列式的影响', subtitle:'真题一 · 选择 1'});
+
+/* ================== 真题一 · 计算 3 的完整消元 ==================
+   α1=(1,1,-2,1) α2=(2,7,1,4) α3=(-2,3,9,0) α4=(2,1,-2,2) α5=(-1,3,2,1)
+   按列拼成 4×5 矩阵，化到行最简形
+   =============================================================== */
+S.push({
+  title: '① 原矩阵　A = [α₁ α₂ α₃ α₄ α₅]',
+  op: '5 个 4 维列向量按列拼成 4×5 矩阵',
+  html: stage([[1,2,-2,2,-1],[1,7,3,1,3],[-2,1,9,-2,2],[1,4,0,2,1]], {},
+    '<p class="why">主元 a₁₁ = 1。</p>')
+});
+
+/* ② r2-r1, r3+2r1, r4-r1 */
+S.push({
+  title: '② r₂−r₁，r₃+2r₁，r₄−r₁　（算式）',
+  op: '用第 1 行把第 1 列下面清成 0',
+  html: stage([
+      [1,2,-2,2,-1],
+      calcRow([1,7,3,1,3],[1,2,-2,2,-1],-1),
+      calcRow([-2,1,9,-2,2],[1,2,-2,2,-1],2),
+      calcRow([1,4,0,2,1],[1,2,-2,2,-1],-1)
+    ], {pivot:[[0,0]], hlRow:[0],
+        calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[2,0],[2,1],[2,2],[2,3],[2,4],[3,0],[3,1],[3,2],[3,3],[3,4]]}, '')
+});
+S.push({
+  title: '② 结果',
+  op: '',
+  anim: [{type:'add', source:0, target:1, k:-1},
+         {type:'add', source:0, target:2, k:2},
+         {type:'add', source:0, target:3, k:-1}],
+  html: stage([
+      [1,2,-2,2,-1],
+      resRow([1,7,3,1,3],[1,2,-2,2,-1],-1),
+      resRow([-2,1,9,-2,2],[1,2,-2,2,-1],2),
+      resRow([1,4,0,2,1],[1,2,-2,2,-1],-1)
+    ], {pivot:[[0,0]], hlRow:[0]}, '')
+});
+
+/* ③ r3-r2, r4-(2/5)r2 */
+S.push({
+  title: '③ r₃−r₂，r₄−(2/5)r₂　（算式）',
+  op: '第 2 列的主元是 a₂₂ = 5',
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      calcRow([0,5,5,2,0],[0,5,5,-1,4],-1),
+      calcRow([0,2,2,0,2],[0,5,5,-1,4],'-2/5')
+    ], {pivot:[[0,0],[1,1]], hlRow:[1],
+        calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[3,0],[3,1],[3,2],[3,3],[3,4]]}, '')
+});
+S.push({
+  title: '③ 结果',
+  op: '',
+  anim: [{type:'add', source:1, target:2, k:-1},
+         {type:'add', source:1, target:3, k:'-2/5', label:'−2/5'}],
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      resRow([0,5,5,2,0],[0,5,5,-1,4],-1),
+      resRow([0,2,2,0,2],[0,5,5,-1,4],'-2/5')
+    ], {pivot:[[0,0],[1,1]], hlRow:[1]},
+    '<p class="why">第 3 列全是 0 → <b>这一列没有主元</b>，直接跳到第 4 列。</p>')
+});
+
+/* ④ r3/3 */
+S.push({
+  title: '④ r₃÷3　（算式）',
+  op: '把第 3 行第 4 列的主元化成 1',
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      V.rowScaleCalc([0,0,0,3,-4],'1/3'),
+      [0,0,0,'2/5','2/5']
+    ], {pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4]]}, '')
+});
+S.push({
+  title: '④ 结果',
+  op: '',
+  anim: {type:'scale', row:2, k:'1/3', label:'÷3'},
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      V.plain(V.rowScaleCalc([0,0,0,3,-4],'1/3')),
+      [0,0,0,'2/5','2/5']
+    ], {pivot:[[0,0],[1,1]]}, '')
+});
+
+/* ⑤ r4-(2/5)r3 */
+S.push({
+  title: '⑤ r₄−(2/5)r₃　（算式）',
+  op: '用第 3 行消第 4 列',
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      [0,0,0,1,'-4/3'],
+      calcRow([0,0,0,'2/5','2/5'],[0,0,0,1,'-4/3'],'-2/5')
+    ], {pivot:[[0,0],[1,1],[2,3]], calc:[[3,0],[3,1],[3,2],[3,3],[3,4]]}, '')
+});
+S.push({
+  title: '⑤ 结果',
+  op: '',
+  anim: {type:'add', source:2, target:3, k:'-2/5', label:'−2/5'},
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      [0,0,0,1,'-4/3'],
+      resRow([0,0,0,'2/5','2/5'],[0,0,0,1,'-4/3'],'-2/5')
+    ], {pivot:[[0,0],[1,1],[2,3]]},
+    '<p class="why">第 4 行只剩第 5 列一格：14/15。</p>')
+});
+
+/* ⑥ r4/(14/15) */
+S.push({
+  title: '⑥ r₄÷(14/15)　（算式）',
+  op: '把最后一个主元化成 1',
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      [0,0,0,1,'-4/3'],
+      V.rowScaleCalc([0,0,0,0,'14/15'],'15/14')
+    ], {pivot:[[0,0],[1,1],[2,3]], calc:[[3,0],[3,1],[3,2],[3,3],[3,4]]}, '')
+});
+S.push({
+  title: '⑥ 结果　→ 行阶梯形',
+  op: '',
+  anim: {type:'scale', row:3, k:'15/14', label:'÷(14/15)'},
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      [0,0,0,1,'-4/3'],
+      V.plain(V.rowScaleCalc([0,0,0,0,'14/15'],'15/14'))
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]]},
+    '<p class="why">非零行 4 行 → <b>秩 = 4</b>，行阶梯形完成。</p>')
+});
+
+/* ⑦ r3+(4/3)r4 */
+S.push({
+  title: '⑦ r₃+(4/3)r₄　（算式）',
+  op: '开始往上消',
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      calcRow([0,0,0,1,'-4/3'],[0,0,0,0,1],'4/3'),
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], hlRow:[3], calc:[[2,0],[2,1],[2,2],[2,3],[2,4]]}, '')
+});
+S.push({
+  title: '⑦ 结果',
+  op: '',
+  anim: {type:'add', source:3, target:2, k:'4/3', label:'+(4/3)'},
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,-1,4],
+      resRow([0,0,0,1,'-4/3'],[0,0,0,0,1],'4/3'),
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], hlRow:[3]}, '')
+});
+
+/* ⑧ r2+r3-4r4 */
+S.push({
+  title: '⑧ r₂+r₃−4r₄　（算式）',
+  op: '一次把第 2 行的第 4、5 列都清掉',
+  html: stage([
+      [1,2,-2,2,-1],
+      calcRow([0,5,5,-1,4],[0,0,0,1,0],1),
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], hlRow:[2,3], calc:[[1,0],[1,1],[1,2],[1,3],[1,4]]}, '')
+});
+S.push({
+  title: '⑧ 结果（再减 4 倍 r₄）',
+  op: 'r₂ + r₃ − 4r₄ → r₂',
+  anim: {type:'add', source:2, target:1, k:1},
+  html: stage([
+      [1,2,-2,2,-1],
+      [0,5,5,0,0],
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]]}, '')
+});
+
+/* ⑨ r1-2r3+r4 */
+S.push({
+  title: '⑨ r₁−2r₃+r₄　（算式）',
+  op: '把第 1 行的第 4、5 列清掉',
+  html: stage([
+      calcRow([1,2,-2,2,-1],[0,0,0,1,0],-2),
+      [0,5,5,0,0],
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], hlRow:[2], calc:[[0,0],[0,1],[0,2],[0,3],[0,4]]}, '')
+});
+S.push({
+  title: '⑨ 结果',
+  op: '',
+  anim: {type:'add', source:2, target:0, k:-2},
+  html: stage([
+      [1,2,-2,0,0],
+      [0,5,5,0,0],
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]]}, '')
+});
+
+/* ⑩ r2/5 */
+S.push({
+  title: '⑩ r₂÷5　（算式）',
+  op: '把第 2 个主元化成 1',
+  html: stage([
+      [1,2,-2,0,0],
+      V.rowScaleCalc([0,5,5,0,0],'1/5'),
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4]]}, '')
+});
+S.push({
+  title: '⑩ 结果',
+  op: '',
+  anim: {type:'scale', row:1, k:'1/5', label:'÷5'},
+  html: stage([
+      [1,2,-2,0,0],
+      V.plain(V.rowScaleCalc([0,5,5,0,0],'1/5')),
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]]}, '')
+});
+
+/* ⑪ r1-2r2 */
+S.push({
+  title: '⑪ r₁−2r₂　（算式）',
+  op: '最后把第 2 列上方清掉',
+  html: stage([
+      calcRow([1,2,-2,0,0],[0,1,1,0,0],-2),
+      [0,1,1,0,0],
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], hlRow:[1], calc:[[0,0],[0,1],[0,2],[0,3],[0,4]]}, '')
+});
+S.push({
+  title: '⑪ 结果　→ 行最简形',
+  op: '',
+  anim: {type:'add', source:1, target:0, k:-2},
+  html: stage([
+      [1,0,-4,0,0],
+      [0,1,1,0,0],
+      [0,0,0,1,0],
+      [0,0,0,0,1]
+    ], {pivot:[[0,0],[1,1],[2,3],[3,4]], colHl:[2]},
+    '<p class="why">主元在第 <b>1、2、4、5</b> 列；第 3 列没有主元 → 自由变量。</p>')
+});
+
+/* ⑫ 读答案 */
+S.push({
+  title: '⑫ 读出答案',
+  op: '',
+  html: '<div class="stage"><div class="math">' +
+          V.matrix([[1,0,-4,0,0],[0,1,1,0,0],[0,0,0,1,0],[0,0,0,0,1]],
+            {pivot:[[0,0],[1,1],[2,3],[3,4]], colHl:[2]}) + '</div>' +
+        '<div class="aside">' +
+          '<p class="why">极大无关组 = { α₁, α₂, α₄, α₅ }</p>' +
+          '<p class="why">第 3 列：</p>' +
+          '<div class="vec">' + V.matrix([[-4],[1],[0],[0]]) + '　→　α₃ = −4α₁ + α₂</div>' +
+        '</div></div>' +
+        '<p class="why">主元所在的列标 = 极大无关组的编号；非主元列上的数字 = 线性表示的系数。</p>'
+});
+
+V.stepper('#demo', S, {title: '消元全程'});
+
+document.getElementById('exam-ops').innerHTML = V.exam({
+  src: '真题一 · 选择 1', score: '3 分',
+  body: '将 3 阶方阵 A 的第 3 行乘以 −1 得到单位矩阵 E，则 |A| 为（ ）<br>' +
+        '<span class="opt">A. −3　　B. −1　　C. 1　　D. 3</span>'
+});
+
+document.getElementById('exam-demo').innerHTML = V.exam({
+  src: '真题一 · 计算 3', score: '10 分',
+  body: '求 α₁ = [1,1,−2,1]ᵀ，α₂ = [2,7,1,4]ᵀ，α₃ = [−2,3,9,0]ᵀ，α₄ = [2,1,−2,2]ᵀ，α₅ = [−1,3,2,1]ᵀ ' +
+        '的一个最大无关组，并把其余向量用该最大无关组线性表示。'
+});
+</script>
+</body>
+</html>

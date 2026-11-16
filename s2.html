@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 2 · 求秩 · 齐次通解 · 极大无关组 · 伴随矩阵 · 含参讨论</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .verdict { font-family: var(--mono); font-size:14px; padding:12px 16px; border-radius:var(--radius);
+    background: var(--success-subtle); color: var(--success-fg); border:1px solid #aceebb; margin:14px 0; }
+  .verdict.bad { background: var(--danger-subtle); color: var(--danger-fg); border-color:#ffcecb; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 2</span>
+  <span class="spacer"></span>
+  <span class="badge badge-call">覆盖 75 分</span>
+</div></div>
+
+<div class="wrap">
+  <h1>用这套方法做题</h1>
+
+  <!-- ============ 1 含参求秩 ============ -->
+  <section class="kp">
+    <h2>1　含参数求秩</h2>
+
+    <div class="struct-box">
+      <div class="row">
+        <span class="k">秩</span>
+        <span class="v">化成阶梯形后，非零行的行数</span>
+      </div>
+    </div>
+
+    <div id="exam-rank"></div>
+
+    <div class="stepper" id="rank"></div>
+  </section>
+
+  <!-- ============ 2 齐次通解 + 含参 ============ -->
+  <section class="kp">
+    <h2>2　通解长什么样</h2>
+
+    <div class="struct-box">
+      <div class="row">
+        <span class="k">齐次方程组</span>
+        <span class="v">x = k₁ξ₁ + k₂ξ₂ + ⋯　，　k₁, k₂, ⋯ ∈ R</span>
+      </div>
+      <div class="row">
+        <span class="k">非齐次方程组</span>
+        <span class="v">一个特解 ＋ 上面这一族</span>
+      </div>
+      <div class="row">
+        <span class="k">要几个解</span>
+        <span class="v">矩阵的列数 － 秩</span>
+      </div>
+    </div>
+
+    <div id="exam-null"></div>
+
+    <div class="stepper" id="null"></div>
+  </section>
+
+  <!-- ============ 3 极大无关组 ============ -->
+  <section class="kp">
+    <h2>3　极大无关组</h2>
+
+    <div id="exam-mig"></div>
+
+    <div class="stepper" id="mig"></div>
+  </section>
+
+  <!-- ============ 4 伴随矩阵与逆 ============ -->
+  <section class="kp">
+    <h2>4　伴随矩阵与逆</h2>
+
+    <div class="formula">
+      A⁻¹ = <span class="frac"><span>1</span><span>|A|</span></span> A*
+      <span class="aside-note">（|A| 是 A 的行列式）</span>
+    </div>
+
+    <div class="vec" id="adj-def"></div>
+
+    <p class="why">其中 A<sub>ij</sub> 是代数余子式：划掉第 i 行第 j 列，剩下的行列式再乘 (−1)<sup>i+j</sup>。</p>
+
+    <div id="exam-adj"></div>
+
+    <div class="stepper" id="adj"></div>
+  </section>
+
+  <!-- ============ 5 四元含参方程组 ============ -->
+  <section class="kp">
+    <h2>5　含参方程组：无解 / 唯一解 / 无穷多解</h2>
+
+    <div class="struct-box">
+      <div class="row">
+        <span class="k">系数秩 &lt; 增广秩</span>
+        <span class="v">无解</span>
+      </div>
+      <div class="row">
+        <span class="k">两个秩相等，且 = 列数</span>
+        <span class="v">唯一解</span>
+      </div>
+      <div class="row">
+        <span class="k">两个秩相等，且 &lt; 列数</span>
+        <span class="v">无穷多解，自由变量 = 列数 − 秩</span>
+      </div>
+    </div>
+
+    <p class="why">判断只看一件事：把增广矩阵化成阶梯形后，有没有出现<b>左边全 0、右边不为 0</b> 的行。出现就无解。</p>
+
+    <div id="exam-param"></div>
+
+    <div class="stepper" id="param"></div>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s1.html">← 阶段 1</a>　　<a class="crumb" href="s3.html">阶段 3：行列式 →</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz;
+function st(rows,opt,aside){ return '<div class="stage"><div class="math">'+V.matrix(rows,opt)+'</div>'+(aside?'<div class="aside">'+aside+'</div>':'')+'</div>'; }
+function calcRow(p,s,k,c){ return V.rowCalc(p,s,k,{calcCols:c}); }
+function resRow(p,s,k,c){ return V.plain(calcRow(p,s,k,c)); }
+function fracBox(a,b){ return '<span class="frac"><span>'+a+'</span><span>'+b+'</span></span>'; }
+
+/* ===================== 1 真题一 · 填空 3 ===================== */
+document.getElementById('exam-rank').innerHTML = V.exam({
+  src: '真题一 · 填空 3', score: '3 分',
+  body: '已知矩阵 A = ' + V.matrix([[2,2,1],[0,'a',2],['a',0,2]]) +
+        ' 的秩为 2，且 a ≠ 0，则 a = ______。'
+});
+
+V.stepper('#rank', [
+  { title:'原矩阵',
+    html: st([[2,2,1],[0,'a',2],['a',0,2]], {},
+      '<p class="why">主元 a₁₁ = 2。</p>') },
+  { title:'r₃ − (a/2)r₁　（算式）',
+    html: st([[2,2,1],[0,'a',2], calcRow(['a',0,2],[2,2,1],'-a/2')],
+      {pivot:[[0,0]], calc:[[2,0],[2,1],[2,2]]}, '') },
+  { title:'r₃ − (a/2)r₁　（结果）',
+    anim: {type:'add', source:0, target:2, k:'-a/2', label:'−a/2'},
+    html: st([[2,2,1],[0,'a',2], resRow(['a',0,2],[2,2,1],'-a/2')],
+      {pivot:[[0,0]]}, '') },
+  { title:'r₃ + r₂　（算式）',
+    html: st([[2,2,1],[0,'a',2], calcRow([0,'-a','2-a/2'],[0,'a',2],1)],
+      {pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2]]}, '') },
+  { title:'r₃ + r₂　（结果）→ 阶梯形',
+    anim: {type:'add', source:1, target:2, k:1},
+    html: st([[2,2,1],[0,'a',2],[0,0,'4-a/2']], {pivot:[[0,0],[1,1]]},
+      '<p class="why">阶梯形第三行只剩第 3 列一格：4 − a/2。</p>') },
+  { title:'秩为 2 的条件',
+    html: '<div class="verdict">这一格必须为 0：4 − a/2 = 0　→　a = 8</div>' },
+  { title:'验证 a = 8',
+    html: st([[2,2,1],[0,8,2],[0,0,0]], {pivot:[[0,0],[1,1]]},
+      '<p class="why">第三行全为 0，非零行只有 2 行 → 秩 = 2 ✓。另一根 a = 0 被题设 a ≠ 0 排除。</p>') +
+      '<div class="verdict">a = 8</div>' }
+], {title:'含参求秩', subtitle:'真题一 · 填空 3'});
+
+/* ===================== 2 真题一 · 计算 4 ===================== */
+document.getElementById('exam-null').innerHTML = V.exam({
+  src: '真题一 · 计算 4', score: '10 分',
+  body: '已知矩阵 A = ' + V.matrix([[1,2,1,2],[0,1,'t','t'],[1,'t',0,1]]) +
+        ' 的秩为 2，求 t 的值，并求出齐次方程组 Ax = 0 的通解。'
+});
+
+V.stepper('#null', [
+  { title:'原矩阵',
+    html: st([[1,2,1,2],[0,1,'t','t'],[1,'t',0,1]], {}, '') },
+  { title:'r₃ − r₁　（算式）',
+    html: st([[1,2,1,2],[0,1,'t','t'], calcRow([1,'t',0,1],[1,2,1,2],-1)],
+      {pivot:[[0,0]], calc:[[2,0],[2,1],[2,2],[2,3]]}, '') },
+  { title:'r₃ − r₁　（结果）',
+    anim: {type:'add', source:0, target:2, k:-1},
+    html: st([[1,2,1,2],[0,1,'t','t'], resRow([1,'t',0,1],[1,2,1,2],-1)],
+      {pivot:[[0,0]]}, '<p class="why">第 3 行 = [0, t−2, −1, −1]。</p>') },
+  { title:'r₃ − (t−2)r₂　（算式）',
+    html: st([[1,2,1,2],[0,1,'t','t'], calcRow([0,'t-2',-1,-1],[0,1,'t','t'],'2-t',[1,2,3])],
+      {pivot:[[0,0],[1,1]], calc:[[2,1],[2,2],[2,3]]}, '') },
+  { title:'r₃ − (t−2)r₂　（结果）',
+    anim: {type:'add', source:1, target:2, k:'2-t', label:'−(t−2)'},
+    html: st([[1,2,1,2],[0,1,'t','t'], resRow([0,'t-2',-1,-1],[0,1,'t','t'],'2-t')],
+      {pivot:[[0,0],[1,1]]}, '') },
+  { title:'秩为 2 的条件',
+    html: st([[1,2,1,2],[0,1,'t','t'],[0,0,'−(t−1)²','−(t−1)²']], {pivot:[[0,0],[1,1]]},
+      '<p class="why">−t² + 2t − 1 = −(t−1)²，第 3 行 = [0, 0, −(t−1)², −(t−1)²]。</p>') +
+      '<div class="verdict">秩为 2 ⟺ 第 3 行全为 0 ⟺ (t−1)² = 0　→　t = 1</div>' },
+  { title:'t = 1 化成行最简形',
+    html: st([[1,0,-1,0],[0,1,1,1],[0,0,0,0]], {pivot:[[0,0],[1,1]], colHl:[2,3]},
+      '<p class="why">有 4 列（4 个未知数），秩为 2，其中第 3、4 列没有主元 → x₃、x₄ 自由。</p>' +
+      '<div class="verdict">解的个数 = 列数 − 秩 = 4 − 2 = 2</div>') },
+  { title:'第一个解：只让 1 个自由变量为 1，其余为 0',
+    html: st([[1,0,-1,0],[0,1,1,1],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]], colHl:[2,3], target:[[0,2],[1,2],[2,2]]},
+      '<div class="colvec">x₃ = 1（自由）<br>x₄ = 0（自由）</div>' +
+      '<p class="why">x₄ 取 0，含 x₄ 的项直接不写，每行只剩一个未知数：</p>' +
+      '<p class="why">第 1 行　x₁ − x₃ = 0　→　x₁ = 1<br>' +
+      '第 2 行　x₂ + x₃ = 0　→　x₂ = −1</p>') +
+      '<div class="verdict">ξ₁ = ' + V.matrix([[1],[-1],[1],[0]]) + '</div>' },
+  { title:'第二个解：换一个自由变量为 1',
+    html: st([[1,0,-1,0],[0,1,1,1],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]], colHl:[2,3], target:[[0,3],[1,3],[2,3]]},
+      '<div class="colvec">x₃ = 0（自由）<br>x₄ = 1（自由）</div>' +
+      '<p class="why">x₃ 取 0，含 x₃ 的项直接不写：</p>' +
+      '<p class="why">第 1 行　x₁ = 0<br>' +
+      '第 2 行　x₂ + x₄ = 0　→　x₂ = −1</p>') +
+      '<div class="verdict">ξ₂ = ' + V.matrix([[0],[-1],[0],[1]]) + '</div>' },
+  { title:'把解代回去验算',
+    html: '<div class="vec">' + V.matrix([['金'],['木'],['水'],['火'],['土']]) +
+      V.matrix([['金','木','水','火','土']]) + ' = ' +
+      V.matrix([
+        ['鍂','鈢','淦','鈥','釷'],
+        ['鈢','林','沐','炑','杜'],
+        ['淦','沐','沝','淡','汢'],
+        ['鈥','炑','淡','炎','灶'],
+        ['釷','杜','汢','灶','圭']
+      ]) + '</div>' +
+      '<p class="why">两个解都满足 Aξ = 0。</p>' +
+      '<div class="verdict">Aξ₁ = 0 ✓　　Aξ₂ = 0 ✓</div>' +
+      '<div class="vec">A · ξ₁ = ' + V.matrix([[1,2,1,2],[0,1,1,1],[1,1,0,1]]) +
+      V.matrix([[1],[-1],[1],[0]]) + ' = ' + V.matrix([[0],[0],[0]]) + '</div>' +
+      '<div class="vec">A · ξ₂ = ' + V.matrix([[1,2,1,2],[0,1,1,1],[1,1,0,1]]) +
+      V.matrix([[0],[-1],[0],[1]]) + ' = ' + V.matrix([[0],[0],[0]]) + '</div>' },
+  { title:'写通解',
+    html: '<div class="vec">x = k₁' + V.matrix([[1],[-1],[1],[0]]) +
+      ' + k₂' + V.matrix([[0],[-1],[0],[1]]) + '　，　k₁, k₂ ∈ R</div>' }
+], {title:'求 t 与通解', subtitle:'真题一 · 计算 4'});
+
+/* ===================== 3 真题四 · 解答 2 ===================== */
+document.getElementById('exam-mig').innerHTML = V.exam({
+  src: '真题四 · 解答 2', score: '10 分',
+  body: '设 α₁ = (1, 0, 1, 1)，α₂ = (−3, 3, 7, 1)，α₃ = (−1, 3, 9, 3)，α₄ = (−5, 3, 5, −1)；' +
+        '求向量组 α₁, α₂, α₃, α₄ 的一个最大无关组，并用最大无关组线性表示向量组中其它向量。'
+});
+
+V.stepper('#mig', [
+  { title:'按列拼成 4×4 矩阵',
+    html: st([[1,-3,-1,-5],[0,3,3,3],[1,7,9,5],[1,1,3,-1]], {}, '') },
+  { title:'r₃ − r₁，r₄ − r₁　（算式）',
+    html: st([[1,-3,-1,-5],[0,3,3,3],
+              calcRow([1,7,9,5],[1,-3,-1,-5],-1),
+              calcRow([1,1,3,-1],[1,-3,-1,-5],-1)],
+      {pivot:[[0,0]],
+       calc:[[2,0],[2,1],[2,2],[2,3],[3,0],[3,1],[3,2],[3,3]]}, '') },
+  { title:'r₃ − r₁，r₄ − r₁　（结果）',
+    anim: [{type:'add', source:0, target:2, k:-1},
+           {type:'add', source:0, target:3, k:-1}],
+    html: st([[1,-3,-1,-5],[0,3,3,3],
+              resRow([1,7,9,5],[1,-3,-1,-5],-1),
+              resRow([1,1,3,-1],[1,-3,-1,-5],-1)],
+      {pivot:[[0,0]]},
+      '<p class="why">第 1 列只剩左上角一个 1，下面全是 0。</p>') },
+  { title:'r₂ ÷ 3　（算式）',
+    html: st([[1,-3,-1,-5], V.rowScaleCalc([0,3,3,3],'1/3'),
+              [0,10,10,10],[0,4,4,4]],
+      {pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3]]}, '') },
+  { title:'r₂ ÷ 3　（结果）',
+    anim: {type:'scale', row:1, k:'1/3'},
+    html: st([[1,-3,-1,-5],[0,1,1,1],[0,10,10,10],[0,4,4,4]],
+      {pivot:[[0,0],[1,1]]},
+      '<p class="why">第 2 主元化成 1。</p>') },
+  { title:'r₃ − 10r₂，r₄ − 4r₂　（算式）',
+    html: st([[1,-3,-1,-5],[0,1,1,1],
+              calcRow([0,10,10,10],[0,1,1,1],-10),
+              calcRow([0,4,4,4],[0,1,1,1],-4)],
+      {pivot:[[0,0],[1,1]],
+       calc:[[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]]}, '') },
+  { title:'r₃ − 10r₂，r₄ − 4r₂　（结果）',
+    anim: [{type:'add', source:1, target:2, k:-10},
+           {type:'add', source:1, target:3, k:-4}],
+    html: st([[1,-3,-1,-5],[0,1,1,1],
+              resRow([0,10,10,10],[0,1,1,1],-10),
+              resRow([0,4,4,4],[0,1,1,1],-4)],
+      {pivot:[[0,0],[1,1]]},
+      '<p class="why">第 3、4 行全为 0。</p>') },
+  { title:'r₁ + 3r₂　（算式）',
+    html: st([V.rowCalc([1,-3,-1,-5],[0,1,1,1],3),[0,1,1,1],[0,0,0,0],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]], calc:[[0,0],[0,1],[0,2],[0,3]]}, '') },
+  { title:'r₁ + 3r₂　（结果）',
+    anim: {type:'add', source:1, target:0, k:3},
+    html: st([resRow([1,-3,-1,-5],[0,1,1,1],3),[0,1,1,1],[0,0,0,0],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]]}, '') },
+  { title:'行最简形',
+    html: st([[1,0,2,-2],[0,1,1,1],[0,0,0,0],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]], colHl:[2,3]},
+      '<p class="why">主元在第 1、2 列；第 3、4 列没有主元。非零行 2 行 → 秩 = 2。</p>') },
+  { title:'读答案',
+    html: st([[1,0,2,-2],[0,1,1,1],[0,0,0,0],[0,0,0,0]],
+      {pivot:[[0,0],[1,1]], colHl:[2,3]},
+      '<p class="why">最大无关组 = { α₁, α₂ }　（2 个）</p>' +
+      '<p class="why">第 3 列：</p>' +
+      '<div class="vec">' + V.matrix([[2],[1],[0],[0]]) + '　→　α₃ = 2α₁ + α₂</div>' +
+      '<p class="why">第 4 列：</p>' +
+      '<div class="vec">' + V.matrix([[-2],[1],[0],[0]]) + '　→　α₄ = −2α₁ + α₂</div>') }
+], {title:'最大无关组', subtitle:'真题四 · 解答 2'});
+
+/* ===================== 4 真题一 · 计算 2 ===================== */
+document.getElementById('adj-def').innerHTML = 'A* =' + V.matrix([
+  ['A₁₁','A₂₁','⋯','Aₙ₁'],
+  ['A₁₂','A₂₂','⋯','Aₙ₂'],
+  ['⋮','⋮','⋱','⋮'],
+  ['A₁ₙ','A₂ₙ','⋯','Aₙₙ']
+]);
+
+document.getElementById('exam-adj').innerHTML = V.exam({
+  src: '真题一 · 计算 2', score: '10 分',
+  body: '设矩阵 A = ' + V.matrix([[1,0,0],[2,2,0],[2,1,2]]) + '，求 A* 和 (A⁻¹)*。'
+});
+
+V.stepper('#adj', [
+  { title:'A 是上三角阵',
+    html: st([[1,0,0],[2,2,0],[2,1,2]], {},
+      '<p class="why">上三角阵的行列式 = 对角元之积 = 1·2·2 = 4。</p>') },
+  { title:'划掉一行一列，剩下一个 2×2',
+    html: '<div class="stage"><div class="math">' +
+      '<span class="strike-wrap">' + V.matrix([[1,0,0],[2,2,0],[2,1,2]], {strike:[[0,0],[0,1],[0,2],[1,0],[2,0]]}) + '</span>' +
+      '</div><div class="aside">' +
+      '<p class="why">以 A₁₁ 为例：划掉第 1 行、第 1 列（划掉的部分），剩下右下角 2×2。</p>' +
+      '</div></div>' },
+  { title:'A₁₁：划掉第 1 行第 1 列',
+    html: '<div class="vec">' + V.matrix([[2,0],[1,2]], {bar:true}) + '</div>' +
+      '<div class="formula">A₁₁ = (−1)<sup>1+1</sup> × ' + V.matrix([[2,0],[1,2]], {bar:true}) + ' = 4</div>' },
+  { title:'A₂₁：划掉第 2 行第 1 列',
+    html: '<div class="vec">' + V.matrix([[0,0],[1,2]], {bar:true}) + '</div>' +
+      '<div class="formula">A₂₁ = (−1)<sup>2+1</sup> × ' + V.matrix([[0,0],[1,2]], {bar:true}) + ' = 0</div>' },
+  { title:'A₃₁：划掉第 3 行第 1 列',
+    html: '<div class="vec">' + V.matrix([[0,0],[2,0]], {bar:true}) + '</div>' +
+      '<div class="formula">A₃₁ = (−1)<sup>3+1</sup> × ' + V.matrix([[0,0],[2,0]], {bar:true}) + ' = 0</div>' },
+  { title:'A₁₂：划掉第 1 行第 2 列',
+    html: '<div class="vec">' + V.matrix([[2,0],[2,2]], {bar:true}) + '</div>' +
+      '<div class="formula">A₁₂ = (−1)<sup>1+2</sup> × ' + V.matrix([[2,0],[2,2]], {bar:true}) + ' = −4</div>' },
+  { title:'A₂₂：划掉第 2 行第 2 列',
+    html: '<div class="vec">' + V.matrix([[1,0],[2,2]], {bar:true}) + '</div>' +
+      '<div class="formula">A₂₂ = (−1)<sup>2+2</sup> × ' + V.matrix([[1,0],[2,2]], {bar:true}) + ' = 2</div>' },
+  { title:'A₃₂：划掉第 3 行第 2 列',
+    html: '<div class="vec">' + V.matrix([[1,0],[2,0]], {bar:true}) + '</div>' +
+      '<div class="formula">A₃₂ = (−1)<sup>3+2</sup> × ' + V.matrix([[1,0],[2,0]], {bar:true}) + ' = 0</div>' },
+  { title:'A₁₃：划掉第 1 行第 3 列',
+    html: '<div class="vec">' + V.matrix([[2,2],[2,1]], {bar:true}) + '</div>' +
+      '<div class="formula">A₁₃ = (−1)<sup>1+3</sup> × ' + V.matrix([[2,2],[2,1]], {bar:true}) + ' = −2</div>' },
+  { title:'A₂₃：划掉第 2 行第 3 列',
+    html: '<div class="vec">' + V.matrix([[1,0],[2,1]], {bar:true}) + '</div>' +
+      '<div class="formula">A₂₃ = (−1)<sup>2+3</sup> × ' + V.matrix([[1,0],[2,1]], {bar:true}) + ' = −1</div>' },
+  { title:'A₃₃：划掉第 3 行第 3 列',
+    html: '<div class="vec">' + V.matrix([[1,0],[2,2]], {bar:true}) + '</div>' +
+      '<div class="formula">A₃₃ = (−1)<sup>3+3</sup> × ' + V.matrix([[1,0],[2,2]], {bar:true}) + ' = 2</div>' },
+  { title:'填进 A*：注意行列反着放',
+    html: '<div class="vec">A* = ' + V.matrix([
+        [{h:'A<sub>11</sub>',v:4},{h:'A<sub>21</sub>',v:0},{h:'A<sub>31</sub>',v:0}],
+        [{h:'A<sub>12</sub>',v:-4},{h:'A<sub>22</sub>',v:2},{h:'A<sub>32</sub>',v:0}],
+        [{h:'A<sub>13</sub>',v:-2},{h:'A<sub>23</sub>',v:-1},{h:'A<sub>33</sub>',v:2}]
+      ]) + '</div>' +
+      '<div class="vec">A* = ' + V.matrix([[4,0,0],[-4,2,0],[-2,-1,2]]) + '</div>' +
+      '<p class="why">A₁₂ 填在第 2 行第 1 列，不是第 1 行第 2 列。</p>' },
+  { title:'并排写成 [A | E]',
+    html: st([[1,0,0,1,0,0],[2,2,0,0,1,0],[2,1,2,0,0,1]], {aug:2},
+      '<p class="why">行变换相当于左乘。把 A⁻¹ 左乘整块 [A | E]：</p>' +
+      '<div class="formula">A⁻¹ · [A | E] = [A⁻¹A | A⁻¹E] = [E | A⁻¹]</div>') },
+  { title:'r₂ − 2r₁，r₃ − 2r₁　（算式）',
+    html: st([[1,0,0,1,0,0], calcRow([2,2,0,0,1,0],[1,0,0,1,0,0],-2), calcRow([2,1,2,0,0,1],[1,0,0,1,0,0],-2)],
+      {aug:2, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'r₂ − 2r₁，r₃ − 2r₁　（结果）',
+    anim: [{type:'add', source:0, target:1, k:-2}, {type:'add', source:0, target:2, k:-2}],
+    html: st([[1,0,0,1,0,0], resRow([2,2,0,0,1,0],[1,0,0,1,0,0],-2), resRow([2,1,2,0,0,1],[1,0,0,1,0,0],-2)],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'r₂ ÷ 2　（算式）',
+    html: st([[1,0,0,1,0,0], V.rowScaleCalc([0,2,0,-2,1,0],'1/2'), [0,1,2,-2,0,1]],
+      {aug:2, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[1,5]]}, '') },
+  { title:'r₂ ÷ 2　（结果）',
+    anim: {type:'scale', row:1, k:'1/2', label:'÷2'},
+    html: st([[1,0,0,1,0,0], V.plain(V.rowScaleCalc([0,2,0,-2,1,0],'1/2')), [0,1,2,-2,0,1]],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'r₃ − r₂　（算式）',
+    html: st([[1,0,0,1,0,0],[0,1,0,-1,'1/2',0], calcRow([0,1,2,-2,0,1],[0,1,0,-1,'1/2',0],-1)],
+      {aug:2, pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'r₃ − r₂　（结果）',
+    anim: {type:'add', source:1, target:2, k:-1},
+    html: st([[1,0,0,1,0,0],[0,1,0,-1,'1/2',0], resRow([0,1,2,-2,0,1],[0,1,0,-1,'1/2',0],-1)],
+      {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'r₃ ÷ 2　（结果）',
+    html: st([[1,0,0,1,0,0],[0,1,0,-1,'1/2',0],[0,0,1,'-1/2','-1/4','1/2']],
+      {aug:2, pivot:[[0,0],[1,1],[2,2]]}, '') },
+  { title:'A⁻¹',
+    html: '<div class="vec">A⁻¹ = ' + V.matrix([
+        [1,0,0],
+        [-1,'1/2',0],
+        ['-1/2','-1/4','1/2']
+      ]) + '</div>' },
+  { title:'求 (A⁻¹)*：把 B = A⁻¹ 代进 B* = |B| · B⁻¹',
+    html: '<div class="formula">|B| = |A⁻¹| = ' + fracBox('1','|A|') + ' = ' + fracBox('1','4') + '</div>' +
+      '<div class="formula">B⁻¹ = (A⁻¹)⁻¹ = A</div>' +
+      '<p class="why">|A⁻¹| = ' + fracBox('1','|A|') + ' 的推导：</p>' +
+      '<div class="formula">A·A⁻¹ = E　⇒　|A·A⁻¹| = |E| = 1</div>' +
+      '<div class="formula">|A·A⁻¹| = |A|·|A⁻¹|　（乘积的行列式 = 行列式的乘积）</div>' +
+      '<div class="formula">⇒　|A⁻¹| = ' + fracBox('1','|A|') + ' = ' + fracBox('1','4') + '</div>' },
+  { title:'代回',
+    html: '<div class="formula">(A⁻¹)* = |A⁻¹| · A = ' +
+      '<span class="frac"><span>1</span><span>|A|</span></span> · A = ' +
+      '<span class="frac"><span>1</span><span>4</span></span> · ' +
+      V.matrix([[1,0,0],[2,2,0],[2,1,2]]) + '</div>' },
+  { title:'算出结果',
+    html: '<div class="vec">(A⁻¹)* = ' + V.matrix([
+        ['1/4',0,0],
+        ['1/2','1/2',0],
+        ['1/2','1/4','1/2']
+      ]) + '</div>' +
+      '<p class="why">比对 A⁻¹ 重新求 9 个代数余子式快得多。</p>' }
+], {title:'伴随矩阵与逆', subtitle:'真题一 · 计算 2'});
+
+/* ===================== 5 真题一 · 计算 5 ===================== */
+document.getElementById('exam-param').innerHTML = V.exam({
+  src: '真题一 · 计算 5', score: '10 分',
+  body: '设线性方程组<br>' +
+        'x₁ + x₂ + 2x₃ + 3x₄ = 1<br>' +
+        'x₁ + 3x₂ + 6x₃ + x₄ = 3<br>' +
+        '3x₁ − x₂ − p·x₃ + 15x₄ = 3<br>' +
+        'x₁ − 5x₂ − 10x₃ + 11x₄ = t<br>' +
+        '问：p、t 取何值时，方程组无解、有唯一解、有无穷多解？在有无穷多解时求出通解。'
+});
+
+V.stepper('#param', [
+  { title:'写增广矩阵',
+    html: st([[1,1,2,3,1],[1,3,6,1,3],[3,-1,'-p',15,3],[1,-5,-10,11,'t']], {aug:4}, '') },
+  { title:'r₂ − r₁，r₃ − 3r₁，r₄ − r₁　（算式）',
+    html: st([[1,1,2,3,1], calcRow([1,3,6,1,3],[1,1,2,3,1],-1),
+              calcRow([3,-1,'-p',15,3],[1,1,2,3,1],-3), calcRow([1,-5,-10,11,'t'],[1,1,2,3,1],-1)],
+      {aug:4, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[2,0],[2,1],[2,2],[2,3],[2,4],[3,0],[3,1],[3,2],[3,3],[3,4]]}, '') },
+  { title:'r₂ − r₁，r₃ − 3r₁，r₄ − r₁　（结果）',
+    anim: [{type:'add', source:0, target:1, k:-1}, {type:'add', source:0, target:2, k:-3}, {type:'add', source:0, target:3, k:-1}],
+    html: st([[1,1,2,3,1], resRow([1,3,6,1,3],[1,1,2,3,1],-1),
+              resRow([3,-1,'-p',15,3],[1,1,2,3,1],-3), resRow([1,-5,-10,11,'t'],[1,1,2,3,1],-1)],
+      {aug:4, pivot:[[0,0]]}, '') },
+  { title:'r₃ + 2r₂，r₄ + 3r₂　（算式）',
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],
+              calcRow([0,-4,'-p-6',6,0],[0,2,4,-2,2],2),
+              calcRow([0,-6,-12,8,'t-1'],[0,2,4,-2,2],3)],
+      {aug:4, pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[3,0],[3,1],[3,2],[3,3],[3,4]]}, '') },
+  { title:'r₃ + 2r₂，r₄ + 3r₂　（结果）',
+    anim: [{type:'add', source:1, target:2, k:2}, {type:'add', source:1, target:3, k:3}],
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],
+              resRow([0,-4,'-p-6',6,0],[0,2,4,-2,2],2),
+              resRow([0,-6,-12,8,'t-1'],[0,2,4,-2,2],3)],
+      {aug:4, pivot:[[0,0],[1,1]]}, '') },
+  { title:'阶梯形已成形',
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],[0,0,'2-p',2,4],[0,0,0,2,'t+5']],
+      {aug:4, pivot:[[0,0],[1,1]]},
+      '<p class="why">第 4 行第 3 列已经是 0（−12 + 3·4 = 0），不用再消。</p>' +
+      '<p class="why">第 3 行第 3 列是 <b>2 − p</b>：这是含参的主元。</p>') },
+  { title:'情形一：2 − p ≠ 0',
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],[0,0,'2-p',2,4],[0,0,0,2,'t+5']],
+      {aug:4, pivot:[[0,0],[1,1],[2,2],[3,3]]},
+      '<div class="verdict">4 个主元 → 秩 4 = 列数 → 唯一解（与 t 无关）</div>') },
+  { title:'情形二：p = 2 但 t ≠ −1',
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],[0,0,0,2,4],[0,0,0,2,'t+5']],
+      {aug:4, pivot:[[0,0],[1,1]]},
+      '<p class="why">第 3 行变 [0, 0, 0, 2 | 4]，第 4 行 [0, 0, 0, 2 | t+5]。</p>' +
+      '<div class="verdict bad">两行左边相同右边不同 → 系数矩阵秩 3，增广矩阵秩 4 → 无解</div>') },
+  { title:'情形三：p = 2 且 t = −1',
+    html: st([[1,1,2,3,1],[0,2,4,-2,2],[0,0,0,2,4],[0,0,0,2,4]],
+      {aug:4, pivot:[[0,0],[1,1]]},
+      '<p class="why">第 3、4 行完全一样 → 减掉一行，剩 3 行非零。</p>' +
+      '<div class="verdict">秩 3，小于列数 4 → 无穷多解</div>' +
+      '<p class="why">自由变量 4 − 3 = 1 个。</p>') },
+  { title:'先化成行最简形',
+    html: st([[1,0,0,0,-8],[0,1,2,0,3],[0,0,0,1,2],[0,0,0,0,0]],
+      {aug:4, pivot:[[0,0],[1,1],[2,3]], colHl:[2]},
+      '<p class="why">x₃ 那一列没有主元 → x₃ 是自由变量。</p>') },
+  { title:'回代：每行就是一个等式',
+    html: st([[1,0,0,0,-8],[0,1,2,0,3],[0,0,0,1,2],[0,0,0,0,0]],
+      {aug:4, pivot:[[0,0],[1,1],[2,3]], colHl:[2]},
+      '<p class="why">第 3 行　x₄ = 2<br>' +
+      '第 2 行　x₂ + 2x₃ = 3　→　x₂ = 3 − 2x₃<br>' +
+      '第 1 行　x₁ = −8</p>' +
+      '<div class="vec">x = ' + V.matrix([[-8],[3],[0],[2]]) +
+      ' + k·' + V.matrix([[0],[-2],[1],[0]]) + '　，　k ∈ R</div>') }
+], {title:'含参方程组', subtitle:'真题一 · 计算 5'});
+</script>
+</body>
+</html>

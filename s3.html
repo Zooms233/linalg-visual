@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 3 · 行列式</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .verdict { font-family: var(--mono); font-size:14px; padding:12px 16px; border-radius:var(--radius);
+    background: var(--success-subtle); color: var(--success-fg); border:1px solid #aceebb; margin:14px 0; }
+  .signs { display:inline-grid; gap:2px; font-family:var(--mono); font-size:12px; color:var(--fg-muted);
+    vertical-align:middle; margin-left:12px; }
+  .signs span { width:26px; text-align:center; }
+  .signs .p { color: var(--success-fg); } .signs .n { color: var(--danger-fg); }
+  .bigop { display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+    vertical-align:middle; line-height:1.05; margin:0 3px; }
+  .bigop > .lim { font-size:0.6em; color:var(--fg-muted); }
+  .bigop > .op { font-size:1.15em; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 3</span>
+  <span class="spacer"></span>
+  <span class="badge badge-use">15 分</span>
+</div></div>
+
+<div class="wrap">
+  <h1>行列式</h1>
+
+  <!-- 开头：性质一览 -->
+  <section class="kp">
+    <h2>开讲之前：九条性质</h2>
+
+    <div class="struct-box">
+      <div class="row">
+        <span class="k">1　单位矩阵</span>
+        <div class="v" id="prop-id"></div>
+      </div>
+      <div class="row">
+        <span class="k">2　交换两行（列）</span>
+        <div class="v" id="prop-swap"></div>
+      </div>
+      <div class="row">
+        <span class="k">3　线性（一次只管一行）</span>
+        <div class="v" id="prop-linear"></div>
+      </div>
+      <div class="row">
+        <span class="k">4　两行（列）相等</span>
+        <div class="v" id="prop-eq"></div>
+      </div>
+      <div class="row">
+        <span class="k">5　一行加另一行的 k 倍</span>
+        <div class="v" id="prop-addrow"></div>
+      </div>
+      <div class="row">
+        <span class="k">6　三角行列式</span>
+        <div class="v" id="prop-tri"></div>
+      </div>
+      <div class="row">
+        <span class="k">7　奇异 / 可逆</span>
+        <span class="v">|A| = 0 ⟺ A 不可逆　　|A| ≠ 0 ⟺ A 可逆</span>
+      </div>
+      <div class="row">
+        <span class="k">8　转置</span>
+        <div class="v" id="prop-trans"></div>
+      </div>
+      <div class="row">
+        <span class="k">9　乘法</span>
+        <span class="v">|AB| = |A|·|B|　⇒　|A<sup>k</sup>| = |A|<sup>k</sup>，　|A⁻¹| =
+          <span class="frac"><span>1</span><span>|A|</span></span></span>
+      </div>
+    </div>
+
+    <p class="why">下面七节只用这九条。</p>
+  </section>
+
+  <!-- 1 -->
+  <section class="kp">
+    <h2>1　按列拆</h2>
+    <div id="exam-split"></div>
+    <div class="stepper" id="split"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="kp">
+    <h2>2　行列式的乘方与数乘</h2>
+    <div id="exam-adj"></div>
+    <div class="stepper" id="adjdet"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="kp">
+    <h2>3　副对角型：化三角</h2>
+    <div id="exam-tri"></div>
+    <div class="stepper" id="tri"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="kp">
+    <h2>4　对角元是 aᵢ + xᵢ 的行列式</h2>
+    <div id="exam-sumeq"></div>
+    <div class="stepper" id="sumEq"></div>
+  </section>
+
+  <!-- 5 -->
+  <section class="kp">
+    <h2>5　对角元是 1 + aᵢ 的行列式</h2>
+    <div id="exam-edge"></div>
+    <div class="stepper" id="edge"></div>
+  </section>
+
+  <!-- 6 -->
+  <section class="kp">
+    <h2>6　求 |A*|：先求 |A|</h2>
+    <div class="note">AA* = |A|E　⇒　A* = |A|A⁻¹　⇒　|A*| = |A|<sup>n−1</sup></div>
+    <div id="exam-claw"></div>
+    <div class="stepper" id="claw"></div>
+  </section>
+
+  <!-- 7 -->
+  <section class="kp">
+    <h2>7　降阶与符号</h2>
+    <div id="exam-expand"></div>
+    <div class="stepper" id="expand"></div>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s2.html">← 阶段 2</a>　　<a class="crumb" href="s4.html">阶段 4：矩阵方程 →</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz;
+function st(rows,opt,aside){ return '<div class="stage"><div class="math">'+V.matrix(rows,opt)+'</div>'+(aside?'<div class="aside">'+aside+'</div>':'')+'</div>'; }
+function calcRow(p,s,k,c){ return V.rowCalc(p,s,k,{calcCols:c}); }
+function resRow(p,s,k,c){ return V.plain(calcRow(p,s,k,c)); }
+function fracBox(a,b){ return '<span class="frac"><span>'+a+'</span><span>'+b+'</span></span>'; }
+function bigOp(op,top,bottom){ return '<span class="bigop"><span class="lim">'+top+'</span><span class="op">'+op+'</span><span class="lim">'+bottom+'</span></span>'; }
+function SIG(top,bottom){ return bigOp('Σ',top,bottom); }
+function PROD(top,bottom){ return bigOp('∏',top,bottom); }
+
+document.getElementById('prop-linear').innerHTML =
+  '<div class="vec">' + V.matrix([['ka','kb'],['c','d']], {bar:true}) + ' = k · ' +
+    V.matrix([['a','b'],['c','d']], {bar:true}) + '</div>' +
+  '<div class="vec">' + V.matrix([['a+a′','b+b′'],['c','d']], {bar:true}) + ' = ' +
+    V.matrix([['a','b'],['c','d']], {bar:true}) + ' + ' +
+    V.matrix([['a′','b′'],['c','d']], {bar:true}) + '</div>';
+
+document.getElementById('prop-addrow').innerHTML =
+  '<div class="vec">' + V.matrix([['a+kc','b+kd'],['c','d']], {bar:true}) + ' = ' +
+    V.matrix([['a','b'],['c','d']], {bar:true}) + '</div>';
+
+document.getElementById('prop-tri').innerHTML =
+  '<div class="vec">' + V.matrix([['a','b'],[0,'d']], {bar:true}) + ' = a·d　　' +
+    V.matrix([['a',0],['c','d']], {bar:true}) + ' = a·d</div>';
+
+document.getElementById('prop-eq').innerHTML =
+  '<div class="vec">' + V.matrix([['a','b'],['a','b']], {bar:true}) + ' = 0　　' +
+    V.matrix([['a','b'],['ka','kb']], {bar:true}) + ' = 0</div>';
+
+document.getElementById('prop-id').innerHTML =
+  '<div class="vec">' + V.matrix([[1,0],[0,1]], {bar:true}) + ' = 1</div>';
+
+document.getElementById('prop-swap').innerHTML =
+  '<div class="vec">' + V.matrix([['a','b'],['c','d']], {bar:true}) + ' = −' +
+    V.matrix([['c','d'],['a','b']], {bar:true}) + '</div>';
+
+document.getElementById('prop-trans').innerHTML =
+  '<div class="vec">' + V.matrix([['a','b'],['c','d']], {bar:true}) + ' = ' +
+    V.matrix([['a','c'],['b','d']], {bar:true}) + '</div>';
+
+/* ===== 1 真题四 · 填空 3（按列拆） ===== */
+document.getElementById('exam-split').innerHTML = V.exam({
+  src: '真题四 · 填空 3', score: '3 分',
+  body: '设 A = (α, γ₁, γ₂)，B = (β, γ₁, γ₂) 均是 3 阶方阵，α、β、γ₁、γ₂ 是三维列向量，' +
+        '若 |A| = 2，|B| = 3，则 |A + B| = ______。'
+});
+
+V.stepper('#split', [
+  { title:'看清结构',
+    html: '<div class="verdict">A = (α, γ₁, γ₂)　　B = (β, γ₁, γ₂)</div>' +
+      '<p class="why">只有第 1 列不同，第 2、3 列完全相同。逐列相加：</p>' +
+      '<div class="formula">A + B = (α + β, 2γ₁, 2γ₂)</div>' },
+  { title:'提因子 + 拆列',
+    html: '<div class="formula">|A + B| = |α + β, 2γ₁, 2γ₂| = 2<sup>2</sup>|α + β, γ₁, γ₂|</div>' +
+      '<p class="why">带 2 的有 n − 1 列，n 阶时 2 要提 n − 1 次。</p>' +
+      '<div class="formula">= 2<sup>2</sup>(|α, γ₁, γ₂| + |β, γ₁, γ₂|) = 4(|A| + |B|)</div>' +
+      '<p class="why">只有第 1 列不同 → 只拆一次。</p>' },
+  { title:'通式与结论',
+    html: '<div class="formula">通式（前提：n − 1 列相同，只有 1 列不同）：|A + B| = 2<sup>n−1</sup>(|A| + |B|)</div>' +
+      '<div class="verdict">n = 3，|A| = 2，|B| = 3　→　|A + B| = 4 × 5 = 20</div>' }
+], {title:'按列拆', subtitle:'真题四 · 填空 3'});
+
+/* ===== 2 真题一 · 填空 5（乘方与数乘） ===== */
+document.getElementById('exam-adj').innerHTML = V.exam({
+  src: '真题一 · 填空 5', score: '3 分',
+  body: '设 A 为 3 阶方阵，且 |A| = −1，则 |−(|A²|·A³)| = ______。'
+});
+
+V.stepper('#adjdet', [
+  { title:'先化简括号里',
+    html: '<div class="formula">|A²| = |A|² = (−1)² = 1</div>' +
+      '<div class="formula">−(|A²|·A³) = −(1·A³) = −A³</div>' },
+  { title:'取行列式，-1 连乘到底',
+    html: '<div class="verdict">|−A³| = (−1)<sup>3</sup>|A³| = (−1)<sup>3</sup>|A|<sup>3</sup> = (−1)<sup>3</sup>(−1)<sup>3</sup> = 1</div>' }
+], {title:'行列式的乘方与数乘', subtitle:'真题一 · 填空 5'});
+
+/* ===== 3 真题一 · 计算 1 ===== */
+document.getElementById('exam-tri').innerHTML = V.exam({
+  src: '真题一 · 计算 1', score: '10 分',
+  body: '计算行列式 D = ' + V.matrix([[0,0,0,4],[0,0,4,3],[0,4,3,2],[4,3,2,1]]) + '。'
+});
+
+V.stepper('#tri', [
+  { title:'原行列式',
+    html: st([[0,0,0,4],[0,0,4,3],[0,4,3,2],[4,3,2,1]], {},
+      '<p class="why">非零元全在副对角线上。目标：换成上三角。</p>') },
+  { title:'r₁ ↔ r₄',
+    anim: {type:'swap', a:0, b:3},
+    html: st([[4,3,2,1],[0,0,4,3],[0,4,3,2],[0,0,0,4]], {},
+      '<p class="why">交换一次，行列式取负号。</p>') },
+  { title:'r₂ ↔ r₃',
+    anim: {type:'swap', a:1, b:2},
+    html: st([[4,3,2,1],[0,4,3,2],[0,0,4,3],[0,0,0,4]], {},
+      '<p class="why">再交换一次，负负得正。已是上三角。</p>') },
+  { title:'结论',
+    html: '<div class="verdict">D = 4 × 4 × 4 × 4 = 256</div>' +
+      '<p class="why">副对角型通式：D = (−1)<sup>n(n−1)/2</sup> × 副对角元之积。n = 4 时为偶数次交换，符号 +。</p>' }
+], {title:'化三角', subtitle:'真题一 · 计算 1'});
+
+/* ===== 4 真题三 · 计算 11（各行减第一行 → 加边型转爪型） ===== */
+document.getElementById('exam-sumeq').innerHTML = V.exam({
+  src: '真题三 · 计算 11', score: '10 分',
+  body: '计算行列式 D = ' +
+        V.matrix([['a₁+x₁','a₂','a₃','…','aₙ'], ['a₁','a₂+x₂','a₃','…','aₙ'],
+                  ['a₁','a₂','a₃+x₃','…','aₙ'], ['⋮','⋮','⋮','','⋮'], ['a₁','a₂','a₃','…','aₙ+xₙ']]) +
+        '，其中 xᵢ ≠ 0。'
+});
+
+V.stepper('#sumEq', [
+  { title:'原行列式',
+    html: st([['a₁+x₁','a₂','a₃','…','aₙ'],
+              ['a₁','a₂+x₂','a₃','…','aₙ'],
+              ['a₁','a₂','a₃+x₃','…','aₙ'],
+              ['⋮','⋮','⋮','','⋮'],
+              ['a₁','a₂','a₃','…','aₙ+xₙ']], {},
+      '<p class="why">主对角是 aᵢ + xᵢ，其余全是 aⱼ。</p>') },
+  { title:'r₂ − r₁，r₃ − r₁，…，rₙ − r₁',
+    html: st([['a₁+x₁','a₂','a₃','…','aₙ'],
+              ['-x₁','x₂',0,'…',0],
+              ['-x₁',0,'x₃','…',0],
+              ['⋮','⋮','⋮','','⋮'],
+              ['-x₁',0,0,'…','xₙ']], {},
+      '<p class="why">第 i 行减第 1 行：(aᵢ + xᵢ) − aᵢ = xᵢ，其余列 aⱼ − aⱼ = 0，第 1 列 a₁ − (a₁ + x₁) = −x₁。</p>') },
+  { title:'化成了爪型',
+    html: st([['a₁+x₁','a₂','a₃','…','aₙ'],
+              ['-x₁','x₂',0,'…',0],
+              ['-x₁',0,'x₃','…',0],
+              ['⋮','⋮','⋮','','⋮'],
+              ['-x₁',0,0,'…','xₙ']],
+      {pivot:[[0,0],[1,1],[2,2],[4,4]], colHl:[0]},
+      '<p class="why">非零元只在第 1 行、第 1 列和主对角上 —— 爪型。</p>') },
+  { title:'沿第 1 行拆成两项',
+    html: '<div class="vec">D = ' +
+      V.matrix([['x₁',0,0,'…',0],['-x₁','x₂',0,'…',0],['-x₁',0,'x₃','…',0],
+                ['⋮','⋮','⋮','','⋮'],['-x₁',0,0,'…','xₙ']], {bar:true}) + ' + ' +
+      V.matrix([['a₁','a₂','a₃','…','aₙ'],['-x₁','x₂',0,'…',0],['-x₁',0,'x₃','…',0],
+                ['⋮','⋮','⋮','','⋮'],['-x₁',0,0,'…','xₙ']], {bar:true}) + '</div>' +
+      '<p class="why">行列式对第 1 行线性：(a₁+x₁, a₂, …, aₙ) = (x₁, 0, …, 0) + (a₁, a₂, …, aₙ)。</p>' +
+      '<div class="verdict">D₁ = x₁x₂⋯xₙ　（左边那一项是下三角）</div>' },
+  { title:'第二项：用 r₂, …, rₙ 消掉第 1 行的 a₂, …, aₙ',
+    html: '<div class="vec">r₁ − ' + SIG('n','i=2') + fracBox('aᵢ','xᵢ') + 'rᵢ</div>' +
+      st([[{h:'a₁ + ' + fracBox('a₂x₁','x₂') + ' + ' + fracBox('a₃x₁','x₃') + ' + ⋯ + ' + fracBox('aₙx₁','xₙ')},0,0,'…',0],
+          ['-x₁','x₂',0,'…',0],
+          ['-x₁',0,'x₃','…',0],
+          ['⋮','⋮','⋮','','⋮'],
+          ['-x₁',0,0,'…','xₙ']], {pivot:[[0,0]]},
+      '<p class="why">第 i 行乘 aᵢ/xᵢ 后，第 1 行第 i 格 aᵢ − aᵢ = 0。</p>') +
+      '<div class="verdict">D₂ = (a₁ + ' + SIG('n','i=2') + fracBox('aᵢx₁','xᵢ') + ') · ' + PROD('n','i=2') + ' xᵢ' +
+      ' = a₁x₂⋯xₙ + a₂x₁x₃⋯xₙ + ⋯ + aₙx₁⋯xₙ₋₁</div>' },
+  { title:'D = D₁ + D₂，再提出公因子',
+    html: '<div class="verdict">D = x₁x₂⋯xₙ + a₁x₂⋯xₙ + a₂x₁x₃⋯xₙ + ⋯ + aₙx₁⋯xₙ₋₁</div>' +
+      '<div class="verdict">D = (' + PROD('n','i=1') + ' xᵢ) · (1 + ' + SIG('n','i=1') + fracBox('aᵢ','xᵢ') + ')</div>' }
+], {title:'加边型', subtitle:'真题三 · 计算 11'});
+
+/* ===== 5 真题二 · 计算 11（n 阶，对角 1+aᵢ） ===== */
+document.getElementById('exam-edge').innerHTML = V.exam({
+  src: '真题二 · 计算 11', score: '10 分',
+  body: '计算行列式 D = ' +
+        V.matrix([['1+a₁',1,1,'…',1,1], [1,'1+a₂',1,'…',1,1], [1,1,'1+a₃','…',1,1],
+                  ['⋮','⋮','⋮','⋱','⋮','⋮'], [1,1,1,'…','1+aₙ₋₁',1], [1,1,1,'…',1,'1+aₙ']]) +
+        '，其中 aᵢ ≠ 0。'
+});
+
+V.stepper('#edge', [
+  { title:'原行列式',
+    html: st([['1+a₁',1,1,'…',1],
+              [1,'1+a₂',1,'…',1],
+              [1,1,'1+a₃','…',1],
+              ['⋮','⋮','⋮','','⋮'],
+              [1,1,1,'…','1+aₙ']], {},
+      '<p class="why">主对角是 1 + aᵢ，其余全是 1，且 aᵢ ≠ 0。</p>') },
+  { title:'r₂ − r₁，r₃ − r₁，…，rₙ − r₁',
+    html: st([['1+a₁',1,1,'…',1],
+              ['-a₁','a₂',0,'…',0],
+              ['-a₁',0,'a₃','…',0],
+              ['⋮','⋮','⋮','','⋮'],
+              ['-a₁',0,0,'…','aₙ']], {},
+      '<p class="why">第 i 行减第 1 行：(1 + aᵢ) − 1 = aᵢ，其余列 1 − 1 = 0，第 1 列 1 − (1 + a₁) = −a₁。</p>') },
+  { title:'化成了爪型',
+    html: st([['1+a₁',1,1,'…',1],
+              ['-a₁','a₂',0,'…',0],
+              ['-a₁',0,'a₃','…',0],
+              ['⋮','⋮','⋮','','⋮'],
+              ['-a₁',0,0,'…','aₙ']],
+      {pivot:[[0,0],[1,1],[2,2],[4,4]], colHl:[0]},
+      '<p class="why">形状与上一题相同，只是对角元换成了 aᵢ。</p>') },
+  { title:'沿第 1 行拆成两项',
+    html: '<div class="vec">D = ' +
+      V.matrix([['1',0,0,'…',0],['-a₁','a₂',0,'…',0],['-a₁',0,'a₃','…',0],
+                ['⋮','⋮','⋮','','⋮'],['-a₁',0,0,'…','aₙ']], {bar:true}) + ' + ' +
+      V.matrix([['a₁',1,1,'…',1],['-a₁','a₂',0,'…',0],['-a₁',0,'a₃','…',0],
+                ['⋮','⋮','⋮','','⋮'],['-a₁',0,0,'…','aₙ']], {bar:true}) + '</div>' +
+      '<p class="why">(1+a₁, 1, …, 1) = (1, 0, …, 0) + (a₁, 1, …, 1)。</p>' +
+      '<div class="verdict">D₁ = a₂a₃⋯aₙ　（左边那一项是下三角）</div>' },
+  { title:'第二项：用 r₂, …, rₙ 消掉第 1 行的 1',
+    html: '<div class="vec">r₁ − ' + SIG('n','i=2') + fracBox('1','aᵢ') + 'rᵢ</div>' +
+      st([[{h:'a₁(1 + 1/a₂ + ⋯ + 1/aₙ)'},0,0,'…',0],
+          ['-a₁','a₂',0,'…',0],
+          ['-a₁',0,'a₃','…',0],
+          ['⋮','⋮','⋮','','⋮'],
+          ['-a₁',0,0,'…','aₙ']], {pivot:[[0,0]]},
+      '<p class="why">第 i 格 1 − (1/aᵢ)·aᵢ = 0，第 1 格留下 a₁ + a₁/a₂ + ⋯ + a₁/aₙ。</p>') +
+      '<div class="verdict">D₂ = a₁(1 + ' + SIG('n','i=2') + fracBox('1','aᵢ') + ') · a₂a₃⋯aₙ</div>' },
+  { title:'D = D₁ + D₂，再提出公因子',
+    html: '<div class="verdict">D = a₂a₃⋯aₙ + a₁a₂⋯aₙ·(1 + ' + SIG('n','i=2') + fracBox('1','aᵢ') + ')</div>' +
+      '<div class="verdict">D = (' + PROD('n','i=1') + ' aᵢ) · (1 + ' + SIG('n','i=1') + fracBox('1','aᵢ') + ')</div>' }
+], {title:'加边型', subtitle:'真题二 · 计算 11'});
+
+/* ===== 6 真题四 · 解答 1（伴随矩阵的行列式） ===== */
+document.getElementById('exam-claw').innerHTML = V.exam({
+  src: '真题四 · 解答 1', score: '10 分',
+  body: '求矩阵 A 的伴随矩阵的行列式，其中 A = ' +
+        V.matrix([[1,0,-1,-1],[0,-1,-1,1],[-1,-1,1,1],[-1,-1,1,0]]) + '。'
+});
+
+V.stepper('#claw', [
+  { title:'原矩阵',
+    html: st([[1,0,-1,-1],[0,-1,-1,1],[-1,-1,1,1],[-1,-1,1,0]], {},
+      '<p class="why">使用行变换 + 余子式加速计算。</p>') },
+  { title:'r₁ + r₃　（算式）',
+    html: st([calcRow([1,0,-1,-1],[-1,-1,1,1],1),[0,-1,-1,1],[-1,-1,1,1],[-1,-1,1,0]],
+      {pivot:[[2,0]], calc:[[0,0],[0,1],[0,2],[0,3]]}, '') },
+  { title:'r₁ + r₃　（结果）',
+    anim: {type:'add', source:2, target:0, k:1},
+    html: st([resRow([1,0,-1,-1],[-1,-1,1,1],1),[0,-1,-1,1],[-1,-1,1,1],[-1,-1,1,0]],
+      {hlRow:[0]}, '<p class="why">第 1 行只剩第 2 列一个 −1。</p>') },
+  { title:'按第 1 行展开',
+    html: '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:10px 0">' +
+        '<span class="strike-wrap">' + V.matrix([[0,-1,0,0],[0,-1,-1,1],[-1,-1,1,1],[-1,-1,1,0]],
+          {strike:[[0,0],[0,1],[0,2],[0,3],[1,1],[2,1],[3,1]]}) + '</span>' +
+        '<span class="signs" style="grid-template-columns:repeat(4,26px)">' +
+          '<span class="p">+</span><span class="n" style="outline:2px solid var(--attention-fg);border-radius:3px">−</span><span class="p">+</span><span class="n">−</span>' +
+          '<span class="n">−</span><span class="p">+</span><span class="n">−</span><span class="p">+</span>' +
+          '<span class="p">+</span><span class="n">−</span><span class="p">+</span><span class="n">−</span>' +
+          '<span class="n">−</span><span class="p">+</span><span class="n">−</span><span class="p">+</span>' +
+        '</span>' +
+      '</div>' +
+      '<div class="formula">|A| = a₁₂·A₁₂ = (−1)·(−|M₁₂|) = |M₁₂|</div>' +
+      '<div class="vec">M₁₂ = ' + V.matrix([[0,-1,1],[-1,1,1],[-1,1,0]], {bar:true}) + '</div>' },
+  { title:'M₁₂：r₃ − r₂，再按第 3 行展开',
+    anim: {type:'add', source:1, target:2, k:-1},
+    html: st([[0,-1,1],[-1,1,1], resRow([-1,1,0],[-1,1,1],-1)],
+      {pivot:[[2,2]]}, '<p class="why">第 3 行只剩第 3 列一个 −1。</p>') +
+      '<div class="formula">|M₁₂| = a₃₃·A₃₃ = (−1)·(−1)<sup>3+3</sup>·' +
+      V.matrix([[0,-1],[-1,1]], {bar:true}) + ' = (−1)·(0−1) = 1</div>' },
+  { title:'结论',
+    html: '<div class="verdict">|A| = 1</div>' +
+      '<div class="verdict">|A*| = |A|<sup>n−1</sup> = 1<sup>4−1</sup> = 1</div>' }
+], {title:'伴随矩阵的行列式', subtitle:'真题四 · 解答 1'});
+
+/* ===== 7 真题一 · 填空 2（降阶与符号） ===== */
+document.getElementById('exam-expand').innerHTML = V.exam({
+  src: '真题一 · 填空 2', score: '3 分',
+  body: '在四阶行列式 D 中，第三行元素依次是 −1、0、2、4，第 4 行元素的余子式值依次为 2、5、a、1，则 a = ______。'
+});
+
+V.stepper('#expand', [
+  { title:'余子式与代数余子式',
+    html: '<div class="struct-box">' +
+        '<div class="row"><span class="k">Mᵢⱼ　余子式</span><span class="v">划掉第 i 行、第 j 列，剩下的行列式</span></div>' +
+        '<div class="row"><span class="k">Aᵢⱼ　代数余子式</span><span class="v">Aᵢⱼ = (−1)<sup>i+j</sup> Mᵢⱼ</span></div>' +
+      '</div>' +
+      '<p class="why">题目写“余子式”指 M，写“代数余子式”指 A。两者只差一个符号，看错整题归零。</p>' },
+  { title:'同乘得 D，异乘得 0',
+    html: '<div class="vec">D = ' + V.matrix([['x₁','y₁','z₁'],['x₂','y₂','z₂'],['x₃','y₃','z₃']], {bar:true}) + '</div>' +
+      '<div class="formula">同乘（按第 1 行展开）：x₁A₁₁ + y₁A₁₂ + z₁A₁₃ = D' +
+        '<span class="aside-note">（就是第 4 节求 |A| 用的那条展开）</span></div>' +
+      '<div class="formula">异乘（取第 2 行元素）：x₂A₁₁ + y₂A₁₂ + z₂A₁₃ = ' +
+        V.matrix([['x₂','y₂','z₂'],['x₂','y₂','z₂'],['x₃','y₃','z₃']], {bar:true}) + ' = 0</div>' +
+      '<p class="why">推导：A₁ⱼ 只由第 1 行以外的元素决定，换掉第 1 行不改变 A₁ⱼ。把第 1 行换成第 2 行后两行相同 → 行列式为 0，而它按第 1 行展开恰好就是 x₂A₁₁ + y₂A₁₂ + z₂A₁₃。</p>' },
+  { title:'套到本题',
+    html: '<p class="why">给的是第 3 行元素、第 4 行余子式 —— 两行不同，用异乘。第 4 行的符号（− + − +）：</p>' +
+      '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0">' +
+        '<span class="signs" style="grid-template-columns:repeat(4,26px)">' +
+          '<span class="p">+</span><span class="n">−</span><span class="p">+</span><span class="n">−</span>' +
+          '<span class="n">−</span><span class="p">+</span><span class="n">−</span><span class="p">+</span>' +
+          '<span class="p">+</span><span class="n">−</span><span class="p">+</span><span class="n">−</span>' +
+          '<span class="n" style="background:var(--attention-subtle);border-radius:3px">−</span>' +
+          '<span class="p" style="background:var(--attention-subtle);border-radius:3px">+</span>' +
+          '<span class="n" style="background:var(--attention-subtle);border-radius:3px">−</span>' +
+          '<span class="p" style="background:var(--attention-subtle);border-radius:3px">+</span>' +
+        '</span>' +
+        '<span style="font-family:var(--mono);font-size:13px;color:var(--fg-muted)">A₄ⱼ = (−M₄₁, +M₄₂, −M₄₃, +M₄₄)</span>' +
+      '</div>' +
+      '<div class="formula">a₃₁A₄₁ + a₃₂A₄₂ + a₃₃A₄₃ + a₃₄A₄₄ = 0</div>' +
+      '<div class="formula">(−1)(−2) + 0·5 + 2(−a) + 4(1) = 0</div>' +
+      '<div class="verdict">6 − 2a = 0　→　a = 3</div>' }
+], {title:'降阶与符号', subtitle:'真题一 · 填空 2'});
+
+
+</script>
+</body>
+</html>

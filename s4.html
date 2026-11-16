@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 4 · 矩阵方程</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .verdict { font-family: var(--mono); font-size:14px; padding:12px 16px; border-radius:var(--radius);
+    background: var(--success-subtle); color: var(--success-fg); border:1px solid #aceebb; margin:14px 0; }
+  .formula { font-family: var(--mono); font-size: 15px; background: var(--canvas-subtle);
+    border:1px solid var(--border-default); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; line-height: 2; }
+  .formula b { color: var(--accent-fg); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 4</span>
+  <span class="spacer"></span>
+  <span class="badge badge-use">10 分</span>
+</div></div>
+
+<div class="wrap">
+  <h1>矩阵方程</h1>
+
+  <section class="kp">
+    <h2>1　统一化成 (A + kE)X = C</h2>
+
+    <div class="formula">
+      AX = C − kX　→　AX + kX = C　→　<b>(A + kE)X = C</b>　→　X = (A + kE)⁻¹C
+    </div>
+
+    <div class="note warn">
+      <span class="t">唯一的坑</span><br>
+      <code>AX − X = B</code> 提出 X 得 <code>(A − E)X = B</code>，不是 <code>X(A − E) = B</code>。
+      X 原本在右边，提出来之后仍在右边。
+    </div>
+
+    <table>
+      <thead><tr><th>出处</th><th>原式</th><th>化成</th></tr></thead>
+      <tbody>
+        <tr><td>真题二 · 计算 12</td><td><code>AX = A − 3X</code></td><td><code>(A − 3E)X = A</code></td></tr>
+        <tr><td>真题三 · 计算 12</td><td><code>AX − A = 3E − X</code></td><td><code>(A + E)X = 3E + A</code></td></tr>
+        <tr><td>真题四 · 解答 3</td><td><code>AX = B + X</code></td><td><code>(A − E)X = B</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="kp">
+    <h2>2　真题三 · 计算 12</h2>
+    <div id="exam1"></div>
+    <div class="stepper" id="demo1"></div>
+  </section>
+
+  <section class="kp">
+    <h2>3　真题四 · 解答 3</h2>
+    <div id="exam2"></div>
+    <div class="stepper" id="demo2"></div>
+  </section>
+
+  <section class="kp" id="kp4">
+    <h2>4　相似求高次幂</h2>
+    <div id="exam3"></div>
+    <div class="formula">
+      AP = PB　→　<b>A = P B P⁻¹</b>　→　<b>Aⁿ = P Bⁿ P⁻¹</b>
+    </div>
+    <div class="stepper" id="demo3"></div>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s3.html">← 阶段 3</a>　　<a class="crumb" href="s5.html">阶段 5：特征值与二次型 →</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz;
+function st(rows,opt,aside){ return '<div class="stage"><div class="math">'+V.matrix(rows,opt)+'</div>'+(aside?'<div class="aside">'+aside+'</div>':'')+'</div>'; }
+function calcRow(p,s,k,c){ return V.rowCalc(p,s,k,{calcCols:c}); }
+function resRow(p,s,k,c){ return V.plain(calcRow(p,s,k,c)); }
+
+/* ============ 2 真题三 · 计算 12（AX − A = 3E − X） ============ */
+document.getElementById('exam1').innerHTML = V.exam({
+  src: '真题三 · 计算 12', score: '10 分',
+  body: '求矩阵方程 AX − A = 3E − X 的解，其中 A = ' + V.matrix([[2,0,1],[1,4,0],[0,1,-1]]) + '。'
+});
+
+V.stepper('#demo1', [
+  { title:'① 移项并提出 X',
+    html: '<div class="formula">AX + X = 3E + A　→　<b>(A + E)X = 3E + A</b></div>' +
+      '<p class="why">X = EX，所以 AX + EX = (A+E)X。</p>' },
+  { title:'② 算两侧的矩阵',
+    html: '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">' +
+      '<div><div class="why" style="margin-bottom:6px">A + E</div>' + V.matrix([[3,0,1],[1,5,0],[0,1,0]], {}) + '</div>' +
+      '<div><div class="why" style="margin-bottom:6px">3E + A</div>' + V.matrix([[5,0,1],[1,7,0],[0,1,2]], {}) + '</div>' +
+      '</div>' },
+  { title:'③ 拼成 [(A+E) | (3E+A)]',
+    html: st([[3,0,1,5,0,1],[1,5,0,1,7,0],[0,1,0,0,1,2]], {aug:2},
+      '<p class="why">左边化成 E，右边就是 X。</p>') },
+  { title:'④ r₁ ↔ r₂',
+    anim: {type:'swap', a:0, b:1},
+    html: st([[1,5,0,1,7,0],[3,0,1,5,0,1],[0,1,0,0,1,2]], {aug:2, pivot:[[0,0]]}, '') },
+  { title:'⑤ r₂ − 3r₁　（算式）',
+    html: st([[1,5,0,1,7,0], calcRow([3,0,1,5,0,1],[1,5,0,1,7,0],-3), [0,1,0,0,1,2]],
+      {aug:2, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[1,5]]}, '') },
+  { title:'⑤ r₂ − 3r₁　（结果）',
+    anim: {type:'add', source:0, target:1, k:-3},
+    html: st([[1,5,0,1,7,0], resRow([3,0,1,5,0,1],[1,5,0,1,7,0],-3), [0,1,0,0,1,2]],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'⑥ r₂ ↔ r₃',
+    anim: {type:'swap', a:1, b:2},
+    html: st([[1,5,0,1,7,0],[0,1,0,0,1,2],[0,-15,1,2,-21,1]], {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'⑦ r₃ + 15r₂　（算式）',
+    html: st([[1,5,0,1,7,0],[0,1,0,0,1,2], calcRow([0,-15,1,2,-21,1],[0,1,0,0,1,2],15)],
+      {aug:2, pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'⑦ r₃ + 15r₂　（结果）',
+    anim: {type:'add', source:1, target:2, k:15},
+    html: st([[1,5,0,1,7,0],[0,1,0,0,1,2], resRow([0,-15,1,2,-21,1],[0,1,0,0,1,2],15)],
+      {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'⑧ r₁ − 5r₂　（算式）',
+    html: st([calcRow([1,5,0,1,7,0],[0,1,0,0,1,2],-5),[0,1,0,0,1,2],[0,0,1,2,-6,31]],
+      {aug:2, pivot:[[0,0],[1,1],[2,2]], calc:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5]]}, '') },
+  { title:'⑧ r₁ − 5r₂　（结果）',
+    anim: {type:'add', source:1, target:0, k:-5},
+    html: st([resRow([1,5,0,1,7,0],[0,1,0,0,1,2],-5),[0,1,0,0,1,2],[0,0,1,2,-6,31]],
+      {aug:2, pivot:[[0,0],[1,1],[2,2]]}, '') },
+  { title:'⑨ 结论',
+    html: '<div class="verdict">X = [[1, 2, −10], [0, 1, 2], [2, −6, 31]]</div>' +
+      '<p class="why">全程只用行变换，没有单独求逆，没有出现分数。</p>' }
+], {title:'AX − A = 3E − X', subtitle:'真题三 · 计算 12'});
+
+/* ============ 3 真题四 · 解答 3（AX = B + X） ============ */
+document.getElementById('exam2').innerHTML = V.exam({
+  src: '真题四 · 解答 3', score: '10 分',
+  body: '设 AX = B + X，其中 A = ' + V.matrix([[1,1,1],[2,2,-1],[-4,-3,1]]) +
+        '，B = ' + V.matrix([[1,2,1],[2,-1,1],[-1,3,2]]) + '，计算矩阵 X。'
+});
+
+V.stepper('#demo2', [
+  { title:'① 移项并提出 X',
+    html: '<div class="formula">AX − X = B　→　<b>(A − E)X = B</b></div>' },
+  { title:'② 算 A − E',
+    html: V.matrix([[0,1,1],[2,1,-1],[-4,-3,0]], {}) +
+      '<p class="why">对角元各减 1。</p>' },
+  { title:'③ 拼成 [(A−E) | B]',
+    html: st([[0,1,1,1,2,1],[2,1,-1,2,-1,1],[-4,-3,0,-1,3,2]], {aug:2}, '') },
+  { title:'④ r₁ ↔ r₂',
+    anim: {type:'swap', a:0, b:1},
+    html: st([[2,1,-1,2,-1,1],[0,1,1,1,2,1],[-4,-3,0,-1,3,2]], {aug:2, pivot:[[0,0]]}, '') },
+  { title:'⑤ r₃ + 2r₁　（算式）',
+    html: st([[2,1,-1,2,-1,1],[0,1,1,1,2,1], calcRow([-4,-3,0,-1,3,2],[2,1,-1,2,-1,1],2)],
+      {aug:2, pivot:[[0,0]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'⑤ r₃ + 2r₁　（结果）',
+    anim: {type:'add', source:0, target:2, k:2},
+    html: st([[2,1,-1,2,-1,1],[0,1,1,1,2,1], resRow([-4,-3,0,-1,3,2],[2,1,-1,2,-1,1],2)],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'⑥ r₁ − r₂　（算式）',
+    html: st([calcRow([2,1,-1,2,-1,1],[0,1,1,1,2,1],-1),[0,1,1,1,2,1],[0,-1,-2,3,1,4]],
+      {aug:2, pivot:[[0,0]], calc:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5]]}, '') },
+  { title:'⑥ r₁ − r₂　（结果）',
+    anim: {type:'add', source:1, target:0, k:-1},
+    html: st([resRow([2,1,-1,2,-1,1],[0,1,1,1,2,1],-1),[0,1,1,1,2,1],[0,-1,-2,3,1,4]],
+      {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'⑦ r₁ ÷ 2，r₃ + r₂　（结果）',
+    html: st([[1,0,-1,'1/2','-3/2',0],[0,1,1,1,2,1],[0,0,-1,4,3,5]],
+      {aug:2, pivot:[[0,0],[1,1]]},
+      '<p class="why">第 1 行除以 2；第 3 行加上第 2 行。</p>') },
+  { title:'⑧ 继续化简',
+    html: st([[1,0,-1,'1/2','-3/2',0],[0,1,1,1,2,1],[0,0,1,-4,-3,-5]],
+      {aug:2, pivot:[[0,0],[1,1],[2,2]]},
+      '<p class="why">第 3 行乘以 −1。</p>') },
+  { title:'⑨ 向上消干净',
+    html: st([[1,0,0,'-7/2','-9/2',-5],[0,1,0,5,5,6],[0,0,1,-4,-3,-5]],
+      {aug:2, pivot:[[0,0],[1,1],[2,2]]}, '') },
+  { title:'⑩ 结论',
+    html: '<div class="verdict">X = [[−7/2, −9/2, −5], [5, 5, 6], [−4, −3, −5]]</div>' }
+], {title:'AX = B + X', subtitle:'真题四 · 解答 3'});
+
+/* ============ 4 真题四 · 解答 6(1) ============ */
+document.getElementById('exam3').innerHTML = V.exam({
+  src: '真题四 · 解答 6(1)', score: '15 分',
+  body: '已知 P = ' + V.matrix([[1,2,1],[2,1,1],[1,1,1]]) + '，B = ' + V.matrix([[-2,0,0],[0,1,0],[0,0,-1]]) +
+        '，求：1）P⁻¹；2）若 AP = PB，求 A；3）A⁵。'
+});
+
+V.stepper('#demo3', [
+  { title:'1）求 P⁻¹：[P | E] 行变换',
+    html: st([[1,2,1,1,0,0],[2,1,1,0,1,0],[1,1,1,0,0,1]], {aug:2}, '') },
+  { title:'r₂ − 2r₁，r₃ − r₁　（算式）',
+    html: st([[1,2,1,1,0,0], calcRow([2,1,1,0,1,0],[1,2,1,1,0,0],-2), calcRow([1,1,1,0,0,1],[1,2,1,1,0,0],-1)],
+      {aug:2, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'r₂ − 2r₁，r₃ − r₁　（结果）',
+    anim: [{type:'add', source:0, target:1, k:-2}, {type:'add', source:0, target:2, k:-1}],
+    html: st([[1,2,1,1,0,0], resRow([2,1,1,0,1,0],[1,2,1,1,0,0],-2), resRow([1,1,1,0,0,1],[1,2,1,1,0,0],-1)],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'r₂ ↔ r₃',
+    anim: {type:'swap', a:1, b:2},
+    html: st([[1,2,1,1,0,0],[0,-1,0,-1,0,1],[0,-3,-1,-2,1,0]], {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'r₂ × (−1)　（算式）',
+    html: st([[1,2,1,1,0,0], V.rowScaleCalc([0,-1,0,-1,0,1],-1), [0,-3,-1,-2,1,0]],
+      {aug:2, pivot:[[0,0]], calc:[[1,0],[1,1],[1,2],[1,3],[1,4],[1,5]]}, '') },
+  { title:'r₂ × (−1)　（结果）',
+    anim: {type:'scale', row:1, k:-1, label:'×(−1)'},
+    html: st([[1,2,1,1,0,0], V.plain(V.rowScaleCalc([0,-1,0,-1,0,1],-1)), [0,-3,-1,-2,1,0]],
+      {aug:2, pivot:[[0,0]]}, '') },
+  { title:'r₃ + 3r₂　（算式）',
+    html: st([[1,2,1,1,0,0],[0,1,0,1,0,-1], calcRow([0,-3,-1,-2,1,0],[0,1,0,1,0,-1],3)],
+      {aug:2, pivot:[[0,0],[1,1]], calc:[[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]}, '') },
+  { title:'r₃ + 3r₂　（结果）',
+    anim: {type:'add', source:1, target:2, k:3},
+    html: st([[1,2,1,1,0,0],[0,1,0,1,0,-1], resRow([0,-3,-1,-2,1,0],[0,1,0,1,0,-1],3)],
+      {aug:2, pivot:[[0,0],[1,1]]}, '') },
+  { title:'r₃ × (−1)，再向上消',
+    html: st([[1,0,0,0,1,-1],[0,1,0,1,0,-1],[0,0,1,-1,-1,3]], {aug:2, pivot:[[0,0],[1,1],[2,2]]},
+      '<p class="why">第 3 行化成 [0 0 1 | −1 −1 3]，再用它把上方清干净。</p>') },
+  { title:'1）结论',
+    html: '<div class="verdict">P⁻¹ = [[0, 1, −1], [1, 0, −1], [−1, −1, 3]]</div>' },
+  { title:'2）由 AP = PB 求 A',
+    html: '<div class="formula">AP = PB　右乘 P⁻¹　→　<b>A = P B P⁻¹</b></div>' },
+  { title:'2）代入计算',
+    html: '<div class="verdict">A = [[3, −1, −3], [2, −3, 0], [2, −1, −2]]</div>' },
+  { title:'3）A⁵',
+    html: '<div class="formula">A⁵ = (PBP⁻¹)⁵ = <b>P B⁵ P⁻¹</b></div>' +
+      '<p class="why">中间的 P⁻¹P 全部约掉。</p>' },
+  { title:'3）算 B⁵',
+    html: '<div class="verdict">B 是对角阵　→　B⁵ = diag((−2)⁵, 1⁵, (−1)⁵) = diag(−32, 1, −1)</div>' },
+  { title:'3）结论',
+    html: '<div class="verdict">A⁵ = P · diag(−32, 1, −1) · P⁻¹ = [[3, −31, 27], [2, −63, 60], [2, −31, 28]]</div>' }
+], {title:'相似求高次幂', subtitle:'真题四 · 解答 6(1)'});
+</script>
+</body>
+</html>

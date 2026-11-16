@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>线性代数 · 速记</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\(','\)']], displayMath: [['$$','$$'], ['\[','\]']] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  .notes h2 { margin-top: 34px; font-size: 17px; }
+  .notes ul { margin: 8px 0; }
+  .notes li { margin: 4px 0; }
+  .notes mjx-container[display="true"] { margin: 10px 0 !important; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">&larr; 目录</a>
+  <span class="spacer"></span>
+  <span class="crumb">速记</span>
+</div></div>
+
+<div class="wrap notes">
+<h1>速记</h1>
+<h2 id="第一章-矩阵">第一章 矩阵</h2>
+<p>矩阵乘法：</p>
+<ul>
+<li><span class="math inline">\(AB\neq BA\)</span></li>
+<li><span class="math inline">\(AB=O\nRightarrow A=O 或
+B=O\)</span></li>
+<li><span class="math inline">\(AC=BC且C\neq O\nRightarrow
+A=B\)</span></li>
+</ul>
+<h2 id="第二章-n-阶矩阵的行列式">第二章 <span
+class="math inline">\(n\)</span> 阶矩阵的行列式</h2>
+<ul>
+<li><span class="math inline">\(\det(A) = \sum_{\sigma \in S_n}
+\mathrm{sgn}(\sigma) \prod_{i=1}^n a_{i,\sigma(i)}\)</span>，其中 <span
+class="math inline">\(\mathrm{sgn}(\sigma) =
+(-1)^{\tau(\sigma)}\)</span></li>
+<li>余子式 <span class="math inline">\(M_{ij}\)</span>：删除第 <span
+class="math inline">\(i\)</span> 行第 <span
+class="math inline">\(j\)</span> 列后子矩阵的行列式。</li>
+<li><strong>代数</strong>余子式 <span class="math inline">\(A_{ij} =
+(-1)^{i+j} M_{ij}\)</span></li>
+<li>展开公式：<span class="math inline">\(\det(A) = \sum_{j=1}^n a_{ij}
+A_{ij}\)</span></li>
+<li>范德蒙行列式： <span class="math display">\[
+V_n =
+\begin{vmatrix}
+1 &amp; x_1 &amp; x_1^2 &amp; \cdots &amp; x_1^{n-1} \\
+1 &amp; x_2 &amp; x_2^2 &amp; \cdots &amp; x_2^{n-1} \\
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+1 &amp; x_n &amp; x_n^2 &amp; \cdots &amp; x_n^{n-1}
+\end{vmatrix}
+=\prod_{1 \le i &lt; j \le n} (x_j - x_i)
+\]</span></li>
+</ul>
+<h2 id="第三章-n-阶矩阵的逆与矩阵的秩">第三章 <span
+class="math inline">\(n\)</span> 阶矩阵的逆与矩阵的秩</h2>
+<ul>
+<li>逆矩阵：<span class="math inline">\(A^{-1} = \frac{1}{\det(A)}
+A^*\)</span>，其中<span class="math inline">\(A^* =\begin{bmatrix}A_{11}
+&amp; A_{21} &amp; \cdots &amp; A_{n1} \\A_{12} &amp; A_{22} &amp;
+\cdots &amp; A_{n2} \\\vdots &amp; \vdots &amp; \ddots &amp; \vdots
+\\A_{1n} &amp; A_{2n} &amp; \cdots &amp;
+A_{nn}\end{bmatrix}\)</span></li>
+<li>逆性质：<span
+class="math inline">\((AB)^{-1}=B^{-1}A^{-1}\)</span>， <span
+class="math inline">\((A^\top)^{-1} = (A^{-1})^\top\)</span></li>
+<li>二阶矩阵：<span class="math inline">\(A^{-1} = \frac{1}{ad - bc}
+\begin{bmatrix} d &amp; -b \\ -c &amp; a \end{bmatrix}\)</span></li>
+<li>求逆方法：对增广矩阵 <span class="math inline">\([A | E]\)</span>
+施行初等行变换化为 <span class="math inline">\([E |
+A^{-1}]\)</span></li>
+<li>初等矩阵：对应初等变换的矩阵，<strong>左乘</strong>作用于<strong>行</strong>，<strong>右乘</strong>作用于<strong>列</strong>。</li>
+<li>初等变换：<span
+class="math inline">\(E(i+j(k))\)</span>表示第j行乘k加到第i行</li>
+<li>秩：最高阶非零子式的阶数</li>
+<li>若<span class="math inline">\(AB = O\)</span>，则<span
+class="math inline">\(R(A) + R(B) \leq n\)</span></li>
+<li>标准型矩阵：形如<span class="math inline">\(\begin{bmatrix} 1 &amp;
+0 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \\ 0
+&amp; 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{bmatrix}\)</span>的矩阵</li>
+</ul>
+<h2 id="第四章-线性方程组解的存在性">第四章 线性方程组解的存在性</h2>
+<ul>
+<li>克拉默法则：<span class="math inline">\(x_j =
+\frac{\det(A_j)}{\det(A)}\)</span>，其中 <span
+class="math inline">\(A_j\)</span> 是将 <span
+class="math inline">\(A\)</span> 的第 <span
+class="math inline">\(j\)</span> 列替换为 <span
+class="math inline">\(\mathbf{b}\)</span> 后的矩阵</li>
+<li>高斯消元法：将增广矩阵 <span
+class="math inline">\([A|\mathbf{b}]\)</span> 化为阶梯形或行最简形</li>
+<li>解的判定：
+<ul>
+<li><span class="math inline">\(r(A) = r([A|\mathbf{b}]) =
+n\)</span>：唯一解</li>
+<li><span class="math inline">\(r(A) = r([A|\mathbf{b}]) &lt;
+n\)</span>：无穷多解</li>
+<li><span class="math inline">\(r(A) &lt;
+r([A|\mathbf{b}])\)</span>：无解</li>
+</ul></li>
+</ul>
+<h2 id="第五章-向量组的线性相关性">第五章 向量组的线性相关性</h2>
+<ul>
+<li>等价：能相互线性表示
+<ul>
+<li>充要条件：<span class="math inline">\(R(A)=R(B)=R(A,B)\)</span></li>
+</ul></li>
+<li>线性相关：其中一个能用其他线性表示
+<ul>
+<li>充要条件：<span class="math inline">\(R(A)&lt; m(个数)\)</span></li>
+</ul></li>
+<li>秩：线性无关列向量个数</li>
+<li>解结构：
+<ul>
+<li><span class="math inline">\(A\mathbf{x} = \mathbf{0}\)</span>
+的解集构成<strong>解空间</strong>，维数 <span class="math inline">\(n -
+r(A)\)</span></li>
+<li>齐次通解：解空间的一组基</li>
+<li>非齐次通解：<span class="math inline">\(\mathbf{x} = \mathbf{x}_p +
+\mathbf{x}_h\)</span> (特解 + 齐次通解)</li>
+</ul></li>
+</ul>
+<h2 id="第六章-n-阶矩阵的对角化">第六章 <span
+class="math inline">\(n\)</span> 阶矩阵的对角化</h2>
+<p>向量的内积与正交矩阵</p>
+<ul>
+<li>正交向量：<span class="math inline">\((\mathbf{x}, \mathbf{y} ) =
+\mathbf{x}^\top \mathbf{y}=0\)</span></li>
+<li>施密特正交化：
+<ul>
+<li><span class="math inline">\(\boldsymbol{\beta}_1=
+\boldsymbol{\alpha}_1\)</span></li>
+<li><span class="math inline">\(\boldsymbol{\beta}_i =
+\boldsymbol{\alpha}_i - \sum_{j=1}^{i-1}\frac{( \boldsymbol{\alpha}_i,
+\boldsymbol{\beta}_j )}{(\boldsymbol{\beta}_j, \boldsymbol{\beta}_j )}
+\boldsymbol{\beta}_j,\quad i = 2,\dots,k\)</span></li>
+<li>单位化：<span class="math inline">\(\boldsymbol{\eta}_i =
+\frac{\boldsymbol{\beta}_i}{\|\boldsymbol{\beta}_i\|}, \quad i = 1,
+\dots, k\)</span></li>
+</ul></li>
+<li>正交矩阵：<span class="math inline">\(A^\top A = E\)</span>
+<ul>
+<li><span class="math inline">\(\det(A) =\pm 1\)</span></li>
+<li><span class="math inline">\(A^{-1} = A^\top\)</span></li>
+</ul></li>
+<li>正交变换：<span
+class="math inline">\((A\alpha,A\beta)=(\alpha,\beta)\)</span>
+<ul>
+<li>长度不变</li>
+<li>夹角不变</li>
+</ul></li>
+</ul>
+<p>矩阵的特征值与特征向量</p>
+<ul>
+<li><span class="math inline">\(A\mathbf{x} = \lambda
+\mathbf{x}\)</span>，则<span class="math inline">\(\lambda\)</span>
+为特征值，<span class="math inline">\(\mathbf{x}\)</span> 为对应特征向量
+<ul>
+<li>特征值之和 = 迹</li>
+<li>特征值之积 = 行列式</li>
+</ul></li>
+</ul>
+<p>对角化</p>
+<ul>
+<li>相似矩阵：<span class="math inline">\(P^{-1}AP=B\)</span>
+<ul>
+<li>和<span class="math inline">\(E,O\)</span>矩阵相似的仅有它自己</li>
+<li>相似矩阵特征值相同</li>
+</ul></li>
+<li>有可逆矩阵 <span class="math inline">\(P\)</span>，使得 <span
+class="math inline">\(P^{-1}AP = \Lambda = \mathrm{diag}(\lambda_1,
+\dots, \lambda_n)\)</span>，则称 <span class="math inline">\(A\)</span>
+可对角化
+<ul>
+<li>充要条件：<span class="math inline">\(A\)</span> 有 <span
+class="math inline">\(n\)</span> 个线性无关的特征向量</li>
+</ul></li>
+<li>对角化步骤：
+<ul>
+<li><span class="math inline">\(det(\lambda E-A)=0\)</span>求特征值
+<span class="math inline">\(\lambda_i\)</span></li>
+<li><span class="math inline">\((\lambda_i
+E-A)x=0\)</span>求特征向量<span
+class="math inline">\(\mathbf{x}\)</span></li>
+<li>构造 <span class="math inline">\(P = [\mathbf{x}_1, \dots,
+\mathbf{x}_n]\)</span>，满足<span class="math inline">\(P^{-1}AP =
+\Lambda\)</span></li>
+</ul></li>
+</ul>
+<p>实对称矩阵对角化</p>
+<ul>
+<li>性质：
+<ul>
+<li>特征值均实数</li>
+<li>不同特征值对应特征向量必正交</li>
+<li>必存在正交矩阵P，满足<span class="math inline">\(P^{-1}AP =
+\Lambda\)</span></li>
+</ul></li>
+<li>求正交矩阵P将实对称矩阵A化为对角矩阵步骤：
+<ul>
+<li><span class="math inline">\(det(\lambda E-A)=0\)</span>求特征值
+<span class="math inline">\(\lambda_i\)</span></li>
+<li><span class="math inline">\((\lambda_i
+E-A)x=0\)</span>求特征向量<span
+class="math inline">\(\xi_i\)</span></li>
+<li>对多重特征向量进行施密特正交化得<span
+class="math inline">\(\eta_i\)</span></li>
+<li>所有向量单位化得<span
+class="math inline">\(p_i\)</span>，即标准正交向量组</li>
+</ul></li>
+<li><span class="math inline">\(A^m=P \Lambda^m P^{-1}=P \Lambda^m
+P^\top\)</span></li>
+</ul>
+<h2 id="第七章-二次型">第七章 二次型</h2>
+<ul>
+<li>二次型：<span class="math inline">\(f(\mathbf{x}) = \mathbf{x}^\top
+A \mathbf{x}\)</span>，其中 <span class="math inline">\(A\)</span>
+为对称矩阵</li>
+<li>合同矩阵：<span class="math inline">\(P^\top AP=B\)</span></li>
+<li>标准型：<span class="math inline">\(f = \lambda_1 y_1^2 + \lambda_2
+y_2^2 + \cdots + \lambda_n y_n^2\)</span>，使用可逆变换<span
+class="math inline">\(x=Py\)</span>，满足<span
+class="math inline">\(P^\top AP=\Lambda\)</span>则<span
+class="math inline">\(f=x^\top Ax=(Py)^\top A(Py)=y^\top P^\top
+APy=y^\top \Lambda y\)</span></li>
+<li>用正交变换化二次型为标准型步骤：
+<ul>
+<li>写出<span class="math inline">\(f\)</span>对应的对称矩阵<span
+class="math inline">\(A\)</span></li>
+<li>求出<span
+class="math inline">\(A\)</span>的特征值和对应的标准正交矩阵P</li>
+<li>即有正交变换<span class="math inline">\(x=Py\)</span>，有<span
+class="math inline">\(f=y^\top \Lambda y\)</span></li>
+</ul></li>
+<li>正惯性指数：正特征值个数</li>
+<li>负惯性指数：负特征值个数</li>
+<li>惯性指数：正惯性系数+负惯性系数</li>
+<li>r阶顺序主子式：左上角r阶矩阵的行列式</li>
+<li>正定：<span class="math inline">\(f(\mathbf{x}) = \mathbf{x}^\top A
+\mathbf{x}&gt;0\)</span><span
+class="math inline">\(\Leftrightarrow\)</span>特征值均正<span
+class="math inline">\(\Leftrightarrow\)</span>各阶顺序主子式均正</li>
+<li>负定：<span class="math inline">\(f(\mathbf{x}) = \mathbf{x}^\top A
+\mathbf{x}&lt;0\)</span><span
+class="math inline">\(\Leftrightarrow\)</span>特征值均负<span
+class="math inline">\(\Leftrightarrow\)</span>偶数阶顺序主子式均正，奇数阶均负</li>
+</ul>
+<h2 id="第八章-线性空间">第八章 线性空间</h2>
+<p>线性空间</p>
+<ul>
+<li>线性空间<span
+class="math inline">\(\Leftrightarrow\)</span>对加法和数乘封闭：
+<ol type="1">
+<li>加法交换律：<span class="math inline">\(\boldsymbol{\alpha} +
+\boldsymbol{\beta} = \boldsymbol{\beta} +
+\boldsymbol{\alpha}\)</span><br />
+</li>
+<li>加法结合律：<span class="math inline">\((\boldsymbol{\alpha} +
+\boldsymbol{\beta}) + \boldsymbol{\gamma} = \boldsymbol{\alpha} +
+(\boldsymbol{\beta} + \boldsymbol{\gamma})\)</span><br />
+</li>
+<li>零向量存在：存在 <span class="math inline">\(\boldsymbol{0} \in
+V\)</span>，使 <span class="math inline">\(\boldsymbol{\alpha} +
+\boldsymbol{0} = \boldsymbol{\alpha}\)</span><br />
+</li>
+<li>负向量存在：对每个 <span
+class="math inline">\(\boldsymbol{\alpha}\)</span>，存在 <span
+class="math inline">\(-\boldsymbol{\alpha} \in V\)</span>，使 <span
+class="math inline">\(\boldsymbol{\alpha} + (-\boldsymbol{\alpha}) =
+\boldsymbol{0}\)</span><br />
+</li>
+<li>数乘单位元：<span class="math inline">\(1 \cdot \boldsymbol{\alpha}
+= \boldsymbol{\alpha}\)</span><br />
+</li>
+<li>数乘结合律：<span class="math inline">\((kl)\boldsymbol{\alpha} =
+k(l\boldsymbol{\alpha})\)</span><br />
+</li>
+<li>数乘对向量加法分配律：<span
+class="math inline">\(k(\boldsymbol{\alpha} + \boldsymbol{\beta}) =
+k\boldsymbol{\alpha} + k\boldsymbol{\beta}\)</span></li>
+<li>数乘对数加法分配律：<span class="math inline">\((k +
+l)\boldsymbol{\alpha} = k\boldsymbol{\alpha} +
+l\boldsymbol{\alpha}\)</span></li>
+</ol></li>
+</ul>
+<p>满秩坐标变换</p>
+<ul>
+<li><p>已知旧基<span class="math inline">\(\{\boldsymbol{\alpha}_1,
+\dots, \boldsymbol{\alpha}_n\}\)</span>到新基<span
+class="math inline">\(\{\boldsymbol{\beta}_1, \dots,
+\boldsymbol{\beta}_n\}\)</span>的变换关系： <span
+class="math display">\[
+\begin{aligned}
+\boldsymbol{\beta}_1 &amp;= p_{11} \boldsymbol{\alpha}_1 + p_{21}
+\boldsymbol{\alpha}_2 + \cdots + p_{n1} \boldsymbol{\alpha}_n \\
+\boldsymbol{\beta}_2 &amp;= p_{12} \boldsymbol{\alpha}_1 + p_{22}
+\boldsymbol{\alpha}_2 + \cdots + p_{n2} \boldsymbol{\alpha}_n \\
+&amp;\ \vdots \\
+\boldsymbol{\beta}_n &amp;= p_{1n} \boldsymbol{\alpha}_1 + p_{2n}
+\boldsymbol{\alpha}_2 + \cdots + p_{nn} \boldsymbol{\alpha}_n
+\end{aligned}
+\]</span> 过渡矩阵<span class="math inline">\(P\)</span>为： <span
+class="math display">\[
+P = \begin{bmatrix}
+p_{11} &amp; p_{12} &amp; \cdots &amp; p_{1n} \\
+p_{21} &amp; p_{22} &amp; \cdots &amp; p_{2n} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+p_{n1} &amp; p_{n2} &amp; \cdots &amp; p_{nn}
+\end{bmatrix}
+\]</span></p></li>
+<li><p>基变换公式：<span class="math inline">\([\boldsymbol{\beta}_1,
+\dots, \boldsymbol{\beta}_n] = [\boldsymbol{\alpha}_1, \dots,
+\boldsymbol{\alpha}_n] P\)</span></p></li>
+<li><p>坐标变换公式：由<span
+class="math inline">\([新基]=[旧基]P\)</span>得<span
+class="math inline">\(x_新​=P^{−1}x_旧​\)</span></p></li>
+</ul>
+<p>线性变换</p>
+<ul>
+<li>条件：
+<ol type="1">
+<li>加法保持：<span class="math inline">\(T(\boldsymbol{\alpha} +
+\boldsymbol{\beta}) = T(\boldsymbol{\alpha}) +
+T(\boldsymbol{\beta})\)</span><br />
+</li>
+<li>数乘保持：<span class="math inline">\(T(k\boldsymbol{\alpha}) =
+k\,T(\boldsymbol{\alpha})\)</span></li>
+</ol></li>
+<li><span
+class="math inline">\([新基]=[旧基]P\)</span>，则新基下的矩阵：<span
+class="math inline">\(B=P^{-1}AP\)</span></li>
+</ul>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阶段 5 · 特征值与二次型</title>
+<link rel="stylesheet" href="assets/github-light.css">
+<style>
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .verdict { font-family: var(--mono); font-size:14px; padding:12px 16px; border-radius:var(--radius);
+    background: var(--success-subtle); color: var(--success-fg); border:1px solid #aceebb; margin:14px 0; }
+  .formula { font-family: var(--mono); font-size: 15px; background: var(--canvas-subtle);
+    border:1px solid var(--border-default); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; line-height: 2; }
+  .formula b { color: var(--accent-fg); }
+  .flow { display:flex; gap:0; align-items:stretch; flex-wrap:wrap; margin:16px 0; }
+  .flow .box { flex:1 1 150px; border:1px solid var(--border-default); border-radius:var(--radius);
+    padding:12px 14px; background:var(--canvas-default); position:relative; }
+  .flow .box:not(:last-child) { margin-right:28px; }
+  .flow .box:not(:last-child)::after { content:'→'; position:absolute; right:-22px; top:50%; transform:translateY(-50%);
+    color:var(--fg-subtle); font-size:18px; }
+  .flow .n { font-family:var(--mono); font-size:11px; color:var(--fg-muted); }
+  .flow .t { font-weight:600; font-size:14px; margin:2px 0 4px; }
+  .flow .d { font-size:12.5px; color:var(--fg-muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <a class="crumb" href="index.html">可视化</a><span class="crumb sep">/</span>
+  <span class="crumb">阶段 5</span>
+  <span class="spacer"></span>
+  <span class="badge badge-use">15–25 分</span>
+</div></div>
+
+<div class="wrap">
+  <h1>特征值与二次型</h1>
+
+  <!-- ============ 1 求特征值 ============ -->
+  <section class="kp">
+    <h2>1　求特征值与特征向量</h2>
+
+    <div id="exam-eig"></div>
+
+    <div class="stepper" id="eig"></div>
+  </section>
+
+  <!-- ============ 2 反求参数 ============ -->
+  <section class="kp">
+    <h2>2　用迹与行列式反求参数</h2>
+
+    <div id="exam-param"></div>
+
+    <div class="stepper" id="param"></div>
+  </section>
+
+  <!-- ============ 3 正交变换 ============ -->
+  <section class="kp">
+    <h2>3　正交变换化标准形</h2>
+
+    <div id="exam-orth"></div>
+
+    <div class="flow">
+      <div class="box"><div class="n">STEP 1</div><div class="t">求特征值</div><div class="d">|λE−A| = 0</div></div>
+      <div class="box"><div class="n">STEP 2</div><div class="t">求特征向量</div><div class="d">(λE−A)x = 0</div></div>
+      <div class="box"><div class="n">STEP 3</div><div class="t">正交化 + 单位化</div><div class="d">重根才施密特</div></div>
+      <div class="box"><div class="n">STEP 4</div><div class="t">拼成 P</div><div class="d">列向量按序排列</div></div>
+    </div>
+
+    <div class="stepper" id="orth"></div>
+  </section>
+
+  <!-- ============ 4 正定 ============ -->
+  <section class="kp">
+    <h2>4　正定判定</h2>
+
+    <div id="exam-pd"></div>
+
+    <div class="stepper" id="pd"></div>
+  </section>
+
+  <!-- ============ 5 相似求幂 ============ -->
+  <section class="kp">
+    <h2>5　相似求高次幂</h2>
+
+    <div class="ref-box">题干同 <a href="s4.html#kp4">阶段 4 · 真题四 · 解答 6(1)</a>，这里只做第 3 问 A⁵。</div>
+
+    <div class="stepper" id="pow"></div>
+  </section>
+
+  <p style="margin-top:32px"><a class="crumb" href="s4.html">← 阶段 4</a>　　<a class="crumb" href="s6.html">阶段 6：证明题 →</a></p>
+</div>
+
+<script src="assets/viz.js"></script>
+<script>
+var V = Viz;
+function st(rows,opt,aside){ return '<div class="stage"><div class="math">'+V.matrix(rows,opt)+'</div>'+(aside?'<div class="aside">'+aside+'</div>':'')+'</div>'; }
+
+/* ================= 真题题面 ================= */
+document.getElementById('exam-eig').innerHTML = V.exam({
+  src: '真题二 · 计算 15（后半）', score: '10 分',
+  body: '当 a = 2 时，求将二次型 f = 2(x² + y² + z²) + 2xy + 2xz − 2yz 变为标准形的正交变换。'
+});
+
+V.stepper('#eig', [
+  { title:'a = 2 时的矩阵',
+    html: st([[2,1,1],[1,2,-1],[1,-1,2]], {},
+      '<p class="why">平方项系数 2 放对角线；交叉项 2xy、2xz 除以 2 得 1；−2yz 除以 2 得 −1。</p>') },
+  { title:'写 λE − A',
+    html: st([['λ−2',-1,-1],[-1,'λ−2',1],[-1,1,'λ−2']], {},
+      '<p class="why">对角线是 λ 减原对角元，非对角元取相反数。</p>') },
+  { title:'展开特征多项式',
+    html: '<div class="verdict">|λE − A| = λ(λ − 3)²　→　λ = 3, 3, 0</div>' },
+  { title:'λ = 3（重根）的特征向量',
+    html: st([[1,-1,-1],[-1,1,1],[-1,1,1]], {pivot:[[0,0]]},
+      '<p class="why">三行成比例，只剩 x₁ − x₂ − x₃ = 0，得两个无关解。</p>') +
+      '<div class="verdict">ξ₁ = (1,1,0)ᵀ，ξ₂ = (1,0,1)ᵀ</div>' },
+  { title:'λ = 0 的特征向量',
+    html: st([[2,1,1],[1,2,-1],[1,-1,2]], {pivot:[[0,0]]},
+      '<p class="why">解 (0·E − A)x = 0，即 Ax = 0。</p>') +
+      '<div class="verdict">ξ₃ = (−1, 1, 1)ᵀ</div>' },
+  { title:'验算',
+    html: '<dl style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14.5px">' +
+      '<dt style="color:var(--fg-muted)">Σλ = tr(A)</dt><dd style="margin:0;font-family:var(--mono)">3+3+0 = 6 = 2+2+2 ✓</dd>' +
+      '<dt style="color:var(--fg-muted)">Πλ = |A|</dt><dd style="margin:0;font-family:var(--mono)">3·3·0 = 0 ✓</dd></dl>' },
+  { title:'得到标准形',
+    html: '<div class="verdict">f = 3y₁² + 3y₂²</div>' +
+      '<p class="why">重根 3 对应两个特征向量（需施密特正交化），0 对应的只需单位化。</p>' }
+], {title:'特征值与特征向量', subtitle:'真题二 · 计算 15'});
+
+document.getElementById('exam-param').innerHTML = V.exam({
+  src: '真题三 · 计算 15', score: '10 分',
+  body: '已知二次型 f = 2x₁² + 3x₂² + 3x₃² + 2t·x₂x₃（t &lt; 0）可通过正交变换 x = Py 化为标准形 ' +
+        'y₁² + 2y₂² + 5y₃²，求参数 t 及所用正交变换矩阵 P。'
+});
+
+V.stepper('#param', [
+  { title:'写二次型矩阵',
+    html: st([[2,0,0],[0,3,'t'],[0,'t',3]], {},
+      '<p class="why">交叉项 2t·x₂x₃ → a₂₃ = a₃₂ = t。</p>') },
+  { title:'标准形系数即特征值',
+    html: '<div class="verdict">λ = 1, 2, 5</div>' },
+  { title:'先写迹',
+    html: '<div class="formula">Σλ = 8　而　tr(A) = 2+3+3 = 8　（恒等，得不到 t）</div>' },
+  { title:'再写行列式',
+    html: '<div class="formula">Πλ = 1·2·5 = <b>10</b>　而　|A| = 2(9 − t²) = 18 − 2t²</div>' },
+  { title:'解出 t',
+    html: '<div class="verdict">18 − 2t² = 10　→　t² = 4　→　t = ±2　→　题设 t &lt; 0，故 t = −2</div>' },
+  { title:'t = −2 代回，求 λ = 1 的特征向量',
+    html: st([[1,0,0],[0,2,-2],[0,-2,2]], {pivot:[[0,0],[1,1]]},
+      '<p class="why">解 (E − A)x = 0：第 1 行给出 x₁ = 0；后两行合成 x₂ − x₃ = 0。</p>') +
+      '<div class="verdict">ξ₁ = (0, 1, 1)ᵀ</div>' },
+  { title:'λ = 2 的特征向量',
+    html: st([[0,0,0],[0,1,-2],[0,-2,1]], {pivot:[[1,1]]},
+      '<p class="why">解 (2E − A)x = 0：只剩 x₂ = x₃ = 0，x₁ 自由。</p>') +
+      '<div class="verdict">ξ₂ = (1, 0, 0)ᵀ</div>' },
+  { title:'λ = 5 的特征向量',
+    html: st([[-3,0,0],[0,-2,-2],[0,-2,-2]], {pivot:[[0,0],[1,1]]},
+      '<p class="why">解 (5E − A)x = 0：x₁ = 0，x₂ + x₃ = 0。</p>') +
+      '<div class="verdict">ξ₃ = (0, −1, 1)ᵀ</div>' },
+  { title:'单位化并拼成 P',
+    html: '<div class="verdict">P = [[1,0,0], [0, 1/√2, −1/√2], [0, 1/√2, 1/√2]]</div>' +
+      '<p class="why">三个特征值互异 → 特征向量自动正交，只需单位化。<br>列的顺序要与标准形系数 1, 2, 5 对应。</p>' }
+], {title:'反求参数', subtitle:'真题三 · 计算 15'});
+
+/* ================= 3 正交变换 ================= */
+document.getElementById('exam-orth').innerHTML = V.exam({
+  src: '真题一 · 计算 6(2)', score: '10 分',
+  body: '求一个正交变换，将二次型 f = 2x₁x₂ + 2x₁x₃ − 2x₂x₃ 化为标准形，并判断该二次型的正定性。'
+});
+
+V.stepper('#orth', [
+  { title:'先写二次型矩阵',
+    html: st([[0,1,1],[1,0,-1],[1,-1,0]], {},
+      '<p class="why">f = 2x₁x₂ + 2x₁x₃ − 2x₂x₃：交叉项系数都是 2，除以 2 填入，得 1、1、−1。</p>') },
+  { title:'求特征值',
+    html: '<div class="verdict">λ = 1, 1, −2</div>' +
+      '<p class="why">|λE − A| = (λ−1)²(λ+2)。有重根 → 需要施密特正交化。</p>' },
+  { title:'λ = 1（重根）的两个特征向量',
+    html: st([[1,-1,-1],[-1,1,1],[-1,1,1]], {pivot:[[0,0]]},
+      '<p class="why">三行成比例，只剩 x₁ − x₂ − x₃ = 0，得两个无关解。</p>') +
+      '<div class="verdict">ξ₁ = (1,1,0)ᵀ，ξ₂ = (1,0,1)ᵀ</div>' },
+  { title:'施密特正交化（重根才做）',
+    html: '<div class="formula">β₁ = (1,1,0)ᵀ<br>β₂ = ξ₂ − (ξ₂·β₁)/(β₁·β₁)·β₁ = (1,0,1)ᵀ − ½(1,1,0)ᵀ = (½, −½, 1)ᵀ</div>' },
+  { title:'λ = −2 的特征向量',
+    html: st([[-2,-1,-1],[-1,-2,1],[-1,1,-2]], {pivot:[[0,0]]}, '') +
+      '<div class="verdict">ξ₃ = (−1, 1, 1)ᵀ</div>' +
+      '<p class="why">检查：ξ₃·β₁ = −1+1+0 = 0 ✓，ξ₃·β₂ = −½−½+1 = 0 ✓（不同特征值自动正交）。</p>' },
+  { title:'单位化并拼成 P',
+    html: '<div class="verdict">P = [β₁/|β₁|, β₂/|β₂|, ξ₃/|ξ₃|]</div>' +
+      '<p class="why">不同特征值的向量只需单位化；重根的两个才要施密特。顺序不能反。</p>' },
+  { title:'标准形与正定性',
+    html: '<div class="verdict">f = y₁² + y₂² − 2y₃²</div>' +
+      '<p class="why">有一个负系数 → <b>不是正定</b>（秩 3，符号差 1）。</p>' }
+], {title:'正交变换', subtitle:'真题一 · 计算 6(2)'});
+
+/* ================= 4 正定 ================= */
+document.getElementById('exam-pd').innerHTML = V.exam({
+  src: '真题二 · 计算 15', score: '10 分',
+  body: '常数 a 满足什么条件时，二次型 f = a(x² + y² + z²) + 2xy + 2xz − 2yz 为正定二次型；' +
+        '并求出当 a = 2 时，将二次型 f 变为标准形的正交变换。'
+});
+
+V.stepper('#pd', [
+  { title:'写二次型矩阵',
+    html: st([['a',1,1],[1,'a',-1],[1,-1,'a']], {},
+      '<p class="why">平方项系数 a 放对角线；交叉项 2xy、2xz、−2yz 各除以 2 得 1、1、−1。</p>') },
+  { title:'Δ₁',
+    html: '<div class="verdict">Δ₁ = a　→　要求 a &gt; 0</div>' },
+  { title:'Δ₂',
+    html: '<div class="verdict">Δ₂ = a² − 1 &gt; 0　→　a &gt; 1 或 a &lt; −1</div>' },
+  { title:'Δ₃',
+    html: '<div class="verdict">Δ₃ = (a−2)(a+1)² &gt; 0　→　a &gt; 2</div>' },
+  { title:'取交集',
+    html: '<div class="verdict">a &gt; 2</div>' +
+      '<p class="why">三个顺序主子式必须全部为正。</p>' },
+  { title:'a = 2 时的正交变换',
+    html: st([[2,1,1],[1,2,-1],[1,-1,2]], {},
+      '<p class="why">代回后的矩阵。其 |λE − A| = λ(λ−3)²，特征值 3、3、0。</p>') +
+      '<p class="why">重根 3 对应两个特征向量，需要施密特正交化；0 对应的只需单位化。</p>' +
+      '<div class="verdict">标准形 f = 3y₁² + 3y₂²</div>' }
+], {title:'正定判定', subtitle:'真题二 · 计算 15'});
+
+/* ================= 5 相似求幂 ================= */
+/* 题面已在本册阶段 4 出现，这里只做第 3 问，不重复贴题干 */
+V.stepper('#pow', [
+  { title:'第一步：移项得 A',
+    html: '<div class="formula">AP = PB　右乘 P⁻¹　→　<b>A = P B P⁻¹</b></div>' },
+  { title:'第二步：A 的 5 次幂',
+    html: '<div class="formula">A⁵ = P B P⁻¹ · P B P⁻¹ ⋯ = <b>P B⁵ P⁻¹</b></div>' +
+      '<p class="why">中间的 P⁻¹P 全部约掉。</p>' },
+  { title:'第三步：算 B⁵',
+    html: '<div class="verdict">B 是对角阵 → B⁵ = diag((−2)⁵, 1⁵, (−1)⁵) = diag(−32, 1, −1)</div>' },
+  { title:'第四步：乘回去',
+    html: '<div class="formula">A⁵ = P · diag(−32, 1, −1) · P⁻¹</div>' +
+      '<p class="why">不需要先算出 A 再乘五次。</p>' },
+  { title:'P⁻¹ 怎么求',
+    html: st([[1,2,1,1,0,0],[2,1,1,0,1,0],[1,1,1,0,0,1]], {aug:2},
+      '<p class="why">并排 [P | E]，只做行变换化成 [E | P⁻¹]。</p>') }
+], {title:'相似求高次幂', subtitle:'真题四 · 解答 6(1)'});
+</script>
+</body>
+</html>
